@@ -1,0 +1,11 @@
+{
+  "name": "coding-skills",
+  "version": "0.1.0",
+  "description": "A collection of coding-workflow skills for Claude Code. Includes the create-project-spec pipeline (validate-idea, define-product-requirements, create-user-flows, design-architecture) and a commit skill. Every skill supports two independent language settings (output and thinking).",
+  "author": {
+    "name": "eershoov",
+    "email": "eershoov@gmail.com"
+  },
+  "homepage": "https://github.com/eershoov/coding_skills",
+  "keywords": ["skills", "prd", "product-requirements", "architecture", "workflow"]
+}

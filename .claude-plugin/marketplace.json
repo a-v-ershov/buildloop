@@ -1,0 +1,18 @@
+{
+  "name": "coding-skills",
+  "owner": {
+    "name": "eershoov",
+    "email": "eershoov@gmail.com"
+  },
+  "metadata": {
+    "description": "Marketplace for coding-workflow skills for Claude Code.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "coding-skills",
+      "source": "./plugins/coding-skills",
+      "description": "The create-project-spec pipeline (validate-idea -> define-product-requirements -> create-user-flows -> design-architecture) plus a commit skill. Each skill supports independent output/thinking language settings."
+    }
+  ]
+}

@@ -44,12 +44,35 @@ Guidelines:
 
 ## Repository layout
 
-- `skills/<name>/SKILL.md` — one directory per skill; `SKILL.md` holds the skill definition
-  (YAML frontmatter `name` + `description`, then the procedure). This `skills/` directory is
-  the canonical source for the collection.
-- `skills/<name>/references/` — bundled templates, checklists, and rubrics loaded on demand.
-  Keep `SKILL.md` thin (procedure + a copyable checklist); move long templates here
-  (progressive disclosure).
+This repo is **both a Claude Code plugin marketplace and the plugin it ships** — so the skills
+can be installed into any project from GitHub.
+
+```
+.claude-plugin/marketplace.json          # marketplace catalog (lists the plugin)
+plugins/coding-skills/
+  .claude-plugin/plugin.json             # the plugin manifest
+  skills/<name>/SKILL.md                 # one directory per skill
+  skills/<name>/references/*.md          # bundled templates/rubrics (progressive disclosure)
+CLAUDE.md
+README.md
+```
+
+- Skills live under `plugins/coding-skills/skills/`. Component dirs (`skills/`, and later
+  `commands/`, `agents/`) sit at the **plugin root**, not inside `.claude-plugin/`.
+- `SKILL.md` = YAML frontmatter (`name` + `description`) + a thin procedure with a copyable
+  checklist. Long templates go in `references/` and load on demand.
+- Marketplace plugin `source` must be a relative path starting with `./` (here
+  `./plugins/coding-skills`); a repo-root/`"."` source is NOT supported.
+- Validate any change with `claude plugin validate .`.
+
+### Installing the skills into another project
+
+```
+/plugin marketplace add eershoov/coding_skills
+/plugin install coding-skills@coding-skills
+```
+
+Skills then appear namespaced as `coding-skills:<skill>` (e.g. `coding-skills:validate-idea`).
 
 ## Skill authoring conventions
 
