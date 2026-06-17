@@ -27,7 +27,7 @@ and the language it thinks in — defaulting to English. Set them per invocation
 In any project, inside Claude Code:
 
 ```
-/plugin marketplace add a-v-ershov/builder-skills
+/plugin marketplace add https://github.com/a-v-ershov/builder-skills.git
 /plugin install builder-skills@builder-skills
 ```
 
