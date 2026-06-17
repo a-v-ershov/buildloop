@@ -1,7 +1,6 @@
 ---
 name: define-product-requirements
 description: "Turn a validated idea into the product definition: who it is for, and the full set of features being built. Use after validate-idea (reads docs/project-spec/idea-validation.md) and before create-user-flows and design-architecture. Writes docs/project-spec/product-requirements.md. Defines the product layer (WHAT and for WHOM) — never the technical HOW, which is the separate design-architecture step."
-argument-hint: "[--output-lang <lang>] [--thinking-lang <lang>]"
 ---
 
 # Define Product Requirements Skill
@@ -24,12 +23,10 @@ Scope discipline (read carefully):
 
 The only output of this skill is `docs/project-spec/product-requirements.md`.
 
-## Language settings
+## Language
 
-Honor the repo's two independent language settings (see CLAUDE.md). Resolve each:
-`--output-lang` / `--thinking-lang` flag → `.claude/skill-config.json`
-(`outputLanguage` / `thinkingLanguage`) → default **English**. Output language sets the language
-of your questions and the product doc; it never translates code or identifiers.
+Respond and reason in whatever language the user addressed you in — ask your questions and write
+the product doc in that language, and think in it too. This never translates code or identifiers.
 
 ## Operating principles (non-negotiable)
 

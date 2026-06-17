@@ -1,29 +1,22 @@
 ---
 name: commit
 description: "Commit session changes with intelligent splitting for large changesets"
-argument-hint: "[--dry-run] [--single] [--all] [--message <msg>] [--output-lang <lang>] [--thinking-lang <lang>]"
+argument-hint: "[--dry-run] [--single] [--all] [--message <msg>]"
 ---
 
 # Commit Changes Skill
 
 Analyze uncommitted changes, group them intelligently by logic (not just paths), and create well-structured commits.
 
-## Language settings
+## Language
 
-This skill honors the repository's two independent language settings (see CLAUDE.md):
+Respond and reason in whatever language the user addressed you in — write user-facing text (the
+commit plan, the execution summary, questions, error messages) in that language and think in it
+too.
 
-- **Output language** — the language of user-facing text this skill returns (the commit plan,
-  the execution summary, questions, error messages).
-- **Thinking language** — the language used for internal reasoning while analyzing the diff.
-
-Resolution order for each setting (first match wins):
-1. Invocation flag: `--output-lang <lang>` / `--thinking-lang <lang>`.
-2. Repo config file `.claude/skill-config.json` keys `outputLanguage` / `thinkingLanguage`.
-3. Default: **English**.
-
-**Critical exception — commit messages are ALWAYS in English**, regardless of the output
-language setting. The output language affects only the report shown to the user, never the
-text written into git. Likewise, never translate code, identifiers, file paths, or commands.
+**Critical exception — commit messages are ALWAYS in English**, regardless of the user's
+language. The user's language affects only the report shown to the user, never the text written
+into git. Likewise, never translate code, identifiers, file paths, or commands.
 
 ## Git safety
 
@@ -42,8 +35,6 @@ Arguments provided via `$ARGUMENTS`:
 - **--single**: Force all changes into a single commit
 - **--all**: Commit all uncommitted changes, not just session changes
 - **--message <msg>**: Use specific commit message (for single commit)
-- **--output-lang <lang>**: Override the output language for this run
-- **--thinking-lang <lang>**: Override the thinking language for this run
 
 Examples:
 - `/commit` - Auto-analyze and commit (split if needed)
@@ -144,7 +135,7 @@ Commit 2: "refactor: Update Button usages for new variant prop"
 
 ### Step 5: Generate Commit Messages
 
-Commit messages are **always written in English** (see Language settings).
+Commit messages are **always written in English** (see Language).
 
 Do NOT include any co-author or attribution trailers (no `Co-Authored-By:`, no "Generated with
 Claude" footer, no AI/model credit). The message holds only `<type>: <description>` and an
@@ -194,8 +185,8 @@ git log -1 --oneline
 
 ## Output Format
 
-All user-facing text below is rendered in the configured **output language**. The commit
-messages embedded in it stay in English.
+All user-facing text below is rendered in the user's language. The commit messages embedded in it
+stay in English.
 
 ### Dry Run
 

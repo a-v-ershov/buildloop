@@ -1,7 +1,6 @@
 ---
 name: create-user-flows
 description: "Map how users actually move through the product to get value — the customer journey and the step-by-step flows for each feature. Use after define-product-requirements (reads docs/project-spec/product-requirements.md) and before design-architecture. Writes docs/project-spec/user-flows.md. The second product-layer step: it describes the experience (WHAT the user does), never the technical HOW and never visual UI design."
-argument-hint: "[--output-lang <lang>] [--thinking-lang <lang>]"
 ---
 
 # Create User Flows Skill
@@ -22,12 +21,10 @@ Scope discipline (read carefully):
 
 The only output of this skill is `docs/project-spec/user-flows.md`.
 
-## Language settings
+## Language
 
-Honor the repo's two independent language settings (see CLAUDE.md). Resolve each:
-`--output-lang` / `--thinking-lang` flag → `.claude/skill-config.json`
-(`outputLanguage` / `thinkingLanguage`) → default **English**. Output language sets the language
-of your questions and the flows doc; it never translates code or identifiers.
+Respond and reason in whatever language the user addressed you in — ask your questions and write
+the flows doc in that language, and think in it too. This never translates code or identifiers.
 
 ## Operating principles (non-negotiable)
 

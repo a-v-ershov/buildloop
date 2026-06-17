@@ -17,10 +17,9 @@ all the way to a buildable spec, one reviewed step at a time:
 Plus `commit` (intelligent, split-aware git commits). Each step stops at a hard gate for your
 approval before the next runs, and each sub-skill is also runnable on its own.
 
-Every skill supports **two independent language settings** — the language it returns results in,
-and the language it thinks in — defaulting to English. Set them per invocation
-(`--output-lang`, `--thinking-lang`) or in a project's `.claude/skill-config.json`
-(`outputLanguage`, `thinkingLanguage`).
+Every skill **responds in, and thinks in, whatever language you address it in** — write to it in
+Russian and it answers in Russian, in English and it answers in English. Nothing to configure.
+(Commit messages are the one exception: always written in English.)
 
 ## Install
 

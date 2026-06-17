@@ -1,7 +1,7 @@
 ---
 name: create-project-spec
 description: "Produce a project's initial documentation end to end, from a raw idea to a buildable spec. Use when starting a new project (or a major new initiative) and you want the full guided flow rather than running each step by hand. Orchestrates the pipeline — validate-idea → define-product-requirements → create-user-flows → design-architecture — pausing for your approval at each step's hard gate, and offering review-doc as a quality check. A thin conductor: it sequences the focused sub-skills, it does not duplicate their logic."
-argument-hint: "[--from <step>] [--output-lang <lang>] [--thinking-lang <lang>]"
+argument-hint: "[--from <step>]"
 ---
 
 # Create Project Spec Skill (orchestrator)
@@ -21,12 +21,11 @@ The pipeline produces, in order:
 
 `review-doc` is a reusable quality gate that can be run against any artifact before approval.
 
-## Language settings
+## Language
 
-Resolve the two language settings ONCE (see CLAUDE.md): `--output-lang` / `--thinking-lang`
-flag → `.claude/skill-config.json` → default **English**. **Propagate them to every sub-skill**
-you invoke by passing the same `--output-lang` / `--thinking-lang` flags, so the whole pipeline
-speaks consistently.
+Respond and reason in whatever language the user addressed you in. Each sub-skill follows the same
+rule on its own, so the whole pipeline speaks the user's language consistently — there is nothing
+to pass along.
 
 ## Procedure
 
@@ -49,8 +48,8 @@ ask before overwriting an existing artifact.
 For each step in order:
 
 1. **Announce** the step and the sub-skill you are about to invoke.
-2. **Invoke the sub-skill** via the Skill tool, passing the resolved language flags. Let it run
-   its own procedure to completion (it writes its artifact and stops at its own hard gate).
+2. **Invoke the sub-skill** via the Skill tool. Let it run its own procedure to completion (it
+   writes its artifact and stops at its own hard gate).
 3. **Offer a review** — ask whether to run `review-doc` against the new artifact before approval.
 4. **Hard gate.** Present the artifact path and STOP for explicit user approval:
    > "Step N (<sub-skill>) finished → <artifact>. Approve to continue to step N+1, or tell me
@@ -70,5 +69,4 @@ status each) and hand off: the project is ready for implementation planning.
 1. **Conduct, don't duplicate.** Never re-implement a phase's questions or template — invoke its
    sub-skill. This keeps each phase's logic in one place.
 2. **Respect every hard gate.** One user approval per step; never chain two steps without it.
-3. **Propagate language settings** to every sub-skill unchanged.
-4. **Resume, don't restart.** Reuse existing artifacts; only redo a step on explicit request.
+3. **Resume, don't restart.** Reuse existing artifacts; only redo a step on explicit request.

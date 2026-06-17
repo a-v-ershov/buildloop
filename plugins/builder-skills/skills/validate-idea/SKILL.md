@@ -1,7 +1,6 @@
 ---
 name: validate-idea
 description: "Pressure-test a raw product idea before any design or code. Use at the very start of a new project (or a major new feature) when the idea is still vague — to validate demand, audience, the problem, and the business model through adversarial forcing questions, then write docs/project-spec/idea-validation.md. The first step of the create-project-spec pipeline; run before define-product-requirements, create-user-flows, and design-architecture (or let the create-project-spec orchestrator sequence them)."
-argument-hint: "[--output-lang <lang>] [--thinking-lang <lang>]"
 ---
 
 # Idea Validation Skill
@@ -16,12 +15,11 @@ The **only** output of this skill is `docs/project-spec/idea-validation.md`. You
 features, UX, or architecture. If the user pushes toward those, redirect: "That's a later
 phase — first we validate whether this should exist."
 
-## Language settings
+## Language
 
-Honor the repo's two independent language settings (see CLAUDE.md). Resolve each:
-`--output-lang` / `--thinking-lang` flag → `.claude/skill-config.json`
-(`outputLanguage` / `thinkingLanguage`) → default **English**. Output language sets the
-language of your questions and the validation doc; it never translates code or identifiers.
+Respond and reason in whatever language the user addressed you in — ask your questions and write
+the validation doc in that language, and think in it too. This never translates code or
+identifiers.
 
 ## Operating principles (non-negotiable)
 

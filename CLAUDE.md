@@ -13,34 +13,21 @@ mature, production-grade collection of Claude Code coding skills. We study gstac
 (skill anatomy, progressive disclosure, decision flowcharts, safety guardrails) as a
 reference while building our own set.
 
-## Core design requirement: two independent language settings
+## Core design requirement: respond in the user's language
 
-Every skill in this repository MUST support **two independent, configurable languages**:
-
-1. **Output language** — the language a skill uses for its *results*: the text returned to
-   whoever invoked the skill (summaries, reports, explanations, commit messages shown to the
-   user, etc.).
-2. **Thinking language** — the language a skill uses for its *internal reasoning*: planning,
-   analysis, intermediate notes, and chain-of-thought.
-
-These two settings are **fully independent**. For example, a skill may *think* in English
-(for maximal model capability and consistency with code/identifiers) while *returning results*
-in Russian to the caller — or any other combination.
+Every skill in this repository MUST **respond in, and reason in, the language the user addressed
+it in**. If the user wrote in Russian, the skill answers and thinks in Russian; in English, it
+uses English; and so on. There is nothing to configure — detect the user's language from their
+message and match it.
 
 Guidelines:
 
-- Default both settings to **English** when unset.
-- Resolve the setting at skill invocation time; do not hardcode language into skill logic.
-- The output language affects only user-facing text. It MUST NOT translate code, identifiers,
-  file paths, commands, or API names.
-- When a skill spawns subagents, it must propagate both language settings to them.
-
-**Resolution mechanism** (every skill follows this order, first match wins):
-
-1. Per-invocation flags `--output-lang <lang>` and `--thinking-lang <lang>`.
-2. Repo config file `.claude/skill-config.json` with keys `outputLanguage` and
-   `thinkingLanguage`.
-3. Default: **English**.
+- This applies only to natural-language text (questions, summaries, reports, explanations). It
+  MUST NOT translate code, identifiers, file paths, commands, or API names.
+- When a skill spawns subagents, instruct them to follow the same rule, so the whole flow speaks
+  the user's language consistently.
+- Commit messages are the one fixed exception: they are ALWAYS written in English (see the
+  `commit` skill), regardless of the user's language.
 
 ## Repository layout
 
@@ -127,9 +114,9 @@ Conventions for these skills:
 - **Hard gate between phases.** A phase skill must finish its artifact and get explicit user
   approval before the next phase starts. Never jump ahead to a later phase's concern.
 - **The `create-project-spec` orchestrator conducts, never duplicates.** It invokes each sub-skill via the Skill
-  tool, lets it run to its hard gate, gets approval, then advances. It resolves the language
-  settings once and propagates them to every sub-skill. Each sub-skill remains independently
-  runnable on its own.
+  tool, lets it run to its hard gate, gets approval, then advances. Each sub-skill responds in the
+  user's language on its own, so the whole pipeline stays consistent. Each sub-skill remains
+  independently runnable on its own.
 - **Idea validation is adversarial.** A cheap KILL / SKIP / SHRINK pre-filter, then forcing
   questions (demand, audience specificity, problem validation, status-quo competitor, wedge,
   business model). Its only output is the validation doc — no solutioning.
@@ -147,9 +134,9 @@ Conventions for these skills:
 
 ## Authoring conventions
 
-- **Write all skill content (instructions, prompts, descriptions) in English**, regardless of
-  the configured output/thinking languages. The languages above are runtime behavior, not the
-  language the skills themselves are written in.
+- **Write all skill content (instructions, prompts, descriptions) in English**, regardless of the
+  language a skill responds in at runtime. Responding in the user's language is runtime behavior,
+  not the language the skills themselves are written in.
 - **Write this CLAUDE.md and all repository documentation in English.**
 - **Always write git commit messages in English.**
 
