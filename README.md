@@ -48,4 +48,14 @@ To test locally before pushing, add the marketplace from a local path:
 /plugin install builder-skills@builder-skills
 ```
 
+### Git hooks
+
+This repo ships a `commit-msg` hook in `.githooks/` that blocks any commit whose message
+contains an AI attribution trailer (`Co-Authored-By: Claude`, "Generated with Claude", etc.).
+Enable it once per clone:
+
+```
+git config core.hooksPath .githooks
+```
+
 See `CLAUDE.md` for the full design conventions.

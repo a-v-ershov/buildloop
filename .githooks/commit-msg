@@ -1,0 +1,27 @@
+#!/bin/sh
+# commit-msg hook: reject any commit whose message contains an AI co-author /
+# attribution trailer. Git passes the path to the commit message file as $1.
+#
+# Enable in a fresh clone with:
+#   git config core.hooksPath .githooks
+
+msg_file="$1"
+
+# Lines that must never appear in a commit message (case-insensitive):
+#   - Co-Authored-By: ... Claude / Anthropic
+#   - "Generated with Claude" / "🤖 Generated with ..."
+#   - any @anthropic.com address
+pattern='co-authored-by:.*(claude|anthropic)|generated with claude|generated with \[claude|🤖 generated with|@anthropic\.com'
+
+if grep -iqE "$pattern" "$msg_file"; then
+	echo "✖ Commit blocked: AI attribution trailer found in the commit message." >&2
+	echo "" >&2
+	echo "  Remove the following line(s) before committing:" >&2
+	grep -inE "$pattern" "$msg_file" | sed 's/^/    /' >&2
+	echo "" >&2
+	echo "  Commit messages must contain only the change description — no Co-Authored-By," >&2
+	echo "  'Generated with Claude', or any AI/tool attribution." >&2
+	exit 1
+fi
+
+exit 0
