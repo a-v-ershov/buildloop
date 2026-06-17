@@ -49,7 +49,7 @@ can be installed into any project from GitHub.
 
 ```
 .claude-plugin/marketplace.json          # marketplace catalog (lists the plugin)
-plugins/coding-skills/
+plugins/builder-skills/
   .claude-plugin/plugin.json             # the plugin manifest
   skills/<name>/SKILL.md                 # one directory per skill
   skills/<name>/references/*.md          # bundled templates/rubrics (progressive disclosure)
@@ -57,22 +57,22 @@ CLAUDE.md
 README.md
 ```
 
-- Skills live under `plugins/coding-skills/skills/`. Component dirs (`skills/`, and later
+- Skills live under `plugins/builder-skills/skills/`. Component dirs (`skills/`, and later
   `commands/`, `agents/`) sit at the **plugin root**, not inside `.claude-plugin/`.
 - `SKILL.md` = YAML frontmatter (`name` + `description`) + a thin procedure with a copyable
   checklist. Long templates go in `references/` and load on demand.
 - Marketplace plugin `source` must be a relative path starting with `./` (here
-  `./plugins/coding-skills`); a repo-root/`"."` source is NOT supported.
+  `./plugins/builder-skills`); a repo-root/`"."` source is NOT supported.
 - Validate any change with `claude plugin validate .`.
 
 ### Installing the skills into another project
 
 ```
-/plugin marketplace add eershoov/coding_skills
-/plugin install coding-skills@coding-skills
+/plugin marketplace add eershoov/builder-skills
+/plugin install builder-skills@builder-skills
 ```
 
-Skills then appear namespaced as `coding-skills:<skill>` (e.g. `coding-skills:validate-idea`).
+Skills then appear namespaced as `builder-skills:<skill>` (e.g. `builder-skills:validate-idea`).
 
 ## Skill authoring conventions
 

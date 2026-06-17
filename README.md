@@ -1,4 +1,4 @@
-# coding-skills
+# builder-skills
 
 A collection of [Claude Code](https://claude.com/claude-code) skills for coding workflows,
 distributed as a plugin you can install into any project from GitHub.
@@ -27,16 +27,16 @@ and the language it thinks in — defaulting to English. Set them per invocation
 In any project, inside Claude Code:
 
 ```
-/plugin marketplace add eershoov/coding_skills
-/plugin install coding-skills@coding-skills
+/plugin marketplace add eershoov/builder-skills
+/plugin install builder-skills@builder-skills
 ```
 
-Skills then appear namespaced as `coding-skills:<skill>`, e.g. `coding-skills:create-project-spec`.
+Skills then appear namespaced as `builder-skills:<skill>`, e.g. `builder-skills:create-project-spec`.
 
 ## Develop
 
 This repo is both the marketplace (`.claude-plugin/marketplace.json`) and the plugin it ships
-(`plugins/coding-skills/`). After editing, validate the manifests:
+(`plugins/builder-skills/`). After editing, validate the manifests:
 
 ```
 claude plugin validate .
@@ -46,7 +46,7 @@ To test locally before pushing, add the marketplace from a local path:
 
 ```
 /plugin marketplace add ./
-/plugin install coding-skills@coding-skills
+/plugin install builder-skills@builder-skills
 ```
 
 See `CLAUDE.md` for the full design conventions.

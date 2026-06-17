@@ -1,5 +1,5 @@
 {
-  "name": "coding-skills",
+  "name": "builder-skills",
   "owner": {
     "name": "eershoov",
     "email": "eershoov@gmail.com"
@@ -10,8 +10,8 @@
   },
   "plugins": [
     {
-      "name": "coding-skills",
-      "source": "./plugins/coding-skills",
+      "name": "builder-skills",
+      "source": "./plugins/builder-skills",
       "description": "The create-project-spec pipeline (validate-idea -> define-product-requirements -> create-user-flows -> design-architecture) plus a commit skill. Each skill supports independent output/thinking language settings."
     }
   ]
