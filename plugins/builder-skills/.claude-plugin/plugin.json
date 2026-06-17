@@ -1,7 +1,7 @@
 {
   "name": "builder-skills",
   "version": "0.1.1",
-  "description": "A collection of coding-workflow skills for Claude Code. Includes the create-project-spec pipeline (validate-idea, define-product-requirements, create-user-flows, design-architecture) and a commit skill. Every skill responds and thinks in whatever language you address it in.",
+  "description": "A collection of coding-workflow skills for Claude Code. Includes the create-project-spec pipeline (validate-idea, define-product-requirements, create-user-flows, design-architecture, design-dev-architecture) and a commit skill. Every skill responds and thinks in whatever language you address it in.",
   "author": {
     "name": "a-v-ershov",
     "email": "a@ershov.io"
