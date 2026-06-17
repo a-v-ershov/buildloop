@@ -74,6 +74,16 @@ README.md
 
 Skills then appear namespaced as `builder-skills:<skill>` (e.g. `builder-skills:validate-idea`).
 
+### Versioning
+
+The plugin carries an explicit `version` in `plugins/builder-skills/.claude-plugin/plugin.json`
+(semver). Consumers only receive changes via `/plugin update` when this version is **bumped** —
+pushing skill changes without bumping is ignored downstream.
+
+**Bump policy:** whenever skills change, the version MUST be bumped before push. The agent must
+**remind the user** that a bump is due and **propose** the new version, but MUST NOT bump it
+without the user's explicit confirmation. Never auto-bump.
+
 ## Skill authoring conventions
 
 Grounded in Anthropic's Agent Skills best practices and patterns observed across mature
