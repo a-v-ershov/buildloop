@@ -32,6 +32,27 @@ In any project, inside Claude Code:
 
 Skills then appear namespaced as `builder-skills:<skill>`, e.g. `builder-skills:create-project-spec`.
 
+## Update
+
+The plugin carries an explicit `version`, so an install only picks up changes once that version
+is **bumped** — pushing skill changes without a bump is ignored downstream.
+
+**Maintainer side** (this repo): change the skills, bump `version` in
+`plugins/builder-skills/.claude-plugin/plugin.json` (and `metadata.version` in
+`.claude-plugin/marketplace.json`), then push.
+
+**Consumer side** (any project that has it installed): refresh the catalog, update the plugin,
+then restart Claude Code (an update needs a restart to apply):
+
+```
+/plugin marketplace update builder-skills
+/plugin update builder-skills@builder-skills
+```
+
+Or enable auto-update once — `/plugin` → **Marketplaces** → `builder-skills` →
+**Enable auto-update** — and every startup pulls the latest version and prompts `/reload-plugins`.
+(Third-party marketplaces have auto-update off by default.)
+
 ## Develop
 
 This repo is both the marketplace (`.claude-plugin/marketplace.json`) and the plugin it ships
