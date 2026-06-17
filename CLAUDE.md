@@ -47,6 +47,49 @@ Guidelines:
 - `skills/<name>/SKILL.md` — one directory per skill; `SKILL.md` holds the skill definition
   (YAML frontmatter `name` + `description`, then the procedure). This `skills/` directory is
   the canonical source for the collection.
+- `skills/<name>/references/` — bundled templates, checklists, and rubrics loaded on demand.
+  Keep `SKILL.md` thin (procedure + a copyable checklist); move long templates here
+  (progressive disclosure).
+
+## Skill authoring conventions
+
+Grounded in Anthropic's Agent Skills best practices and patterns observed across mature
+collections (gstack, BMAD-METHOD, Spec Kit, Pimzino spec-workflow):
+
+- **Description = discoverability.** Write the `description` in the third person and state both
+  WHAT the skill does and WHEN to use it. Claude selects skills from this field. Do NOT rely on
+  literal "trigger phrases".
+- **Progressive disclosure.** Thin orchestrating body (~1,500–2,000 words) + a copyable
+  sequential checklist; long templates/rubrics live in `references/`.
+- **Persona + anti-sycophancy.** Validation and review skills adopt an explicit critical
+  persona, take a position, and name failure patterns instead of hedging.
+
+## Development-process skill pipeline (PRD phase)
+
+The "raw idea → initial project documentation" flow is a fixed, phased pipeline. Each phase is
+its own skill, adopts a persona, and writes one persistent artifact that the next phase reads.
+
+| # | Skill | Persona | Artifact |
+|---|-------|---------|----------|
+| 1 | `idea-validation` | Founder-turned-investor | `docs/idea-validation.md` |
+| 2 | `prd` | Product manager | `docs/prd.md` |
+| 3 | `ux-journey` | Product designer | `docs/ux-journey.md` |
+| 4 | `architecture` | Software architect (requirements-first) | `docs/architecture.md` + `docs/adr/*` |
+| 5 | `review-doc` | Critic (rubric gate, reusable) | annotates the target doc |
+
+Conventions for these skills:
+
+- **Artifacts live in the repo under `docs/`.** Phase N reads phase N−1's artifact from there.
+- **Hard gate between phases.** A phase skill must finish its artifact and get explicit user
+  approval before the next phase starts. Never jump ahead to a later phase's concern.
+- **Idea validation is adversarial.** A cheap KILL / SKIP / SHRINK pre-filter, then forcing
+  questions (demand, audience specificity, problem validation, status-quo competitor, wedge,
+  business model). Its only output is the validation doc — no solutioning.
+- **Architecture is requirements-first.** Elicit quality-attribute scenarios (cost, performance,
+  security, reliability, scale) first; then propose 2–3 component options with trade-offs.
+  Separate WHAT from HOW — do NOT commit to specific frameworks here. Record significant
+  decisions as ADRs (options + ruled-out alternatives + trade-offs + status).
+- A router/orchestrator over these skills is deferred until the manual flow stabilizes.
 
 ## Authoring conventions
 
