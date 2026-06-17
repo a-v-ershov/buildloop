@@ -47,4 +47,4 @@ growth/sustainability model explicitly.>
 
 ## Open questions
 
-- <Unresolved question carried into the PRD phase.>
+- <Unresolved question carried into the define-product-requirements step.>

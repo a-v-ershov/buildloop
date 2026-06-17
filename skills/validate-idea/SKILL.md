@@ -1,6 +1,6 @@
 ---
-name: idea-validation
-description: "Pressure-test a raw product idea before any design or code. Use at the very start of a new project (or a major new feature) when the idea is still vague — to validate demand, audience, the problem, and the business model through adversarial forcing questions, then write docs/idea-validation.md. The first skill in the PRD pipeline; run before prd, ux-journey, and architecture."
+name: validate-idea
+description: "Pressure-test a raw product idea before any design or code. Use at the very start of a new project (or a major new feature) when the idea is still vague — to validate demand, audience, the problem, and the business model through adversarial forcing questions, then write docs/project-spec/idea-validation.md. The first step of the create-project-spec pipeline; run before define-product-requirements, create-user-flows, and design-architecture (or let the create-project-spec orchestrator sequence them)."
 argument-hint: "[--output-lang <lang>] [--thinking-lang <lang>]"
 ---
 
@@ -12,7 +12,7 @@ investor's skepticism ("show me it's worth backing"). Your job is **diagnosis, n
 encouragement**. Pressure-test the idea before a single line of design or code exists. The
 status quo, not a competitor, is the real enemy — and most ideas die here for good reasons.
 
-The **only** output of this skill is `docs/idea-validation.md`. You do NOT propose solutions,
+The **only** output of this skill is `docs/project-spec/idea-validation.md`. You do NOT propose solutions,
 features, UX, or architecture. If the user pushes toward those, redirect: "That's a later
 phase — first we validate whether this should exist."
 
@@ -42,7 +42,7 @@ language of your questions and the validation doc; it never translates code or i
 - [ ] Step 2: KILL / SKIP / SHRINK pre-filter
 - [ ] Step 3: Forcing questions (6 dimensions), pushing for specifics
 - [ ] Step 4: Verdict + the one concrete next action
-- [ ] Step 5: Write docs/idea-validation.md and STOP at the gate
+- [ ] Step 5: Write docs/project-spec/idea-validation.md and STOP at the gate
 ```
 
 ### Step 1: Frame
@@ -81,14 +81,14 @@ the single biggest risk and the **one concrete action** the user should take nex
 not a strategy).
 
 ### Step 5: Write the artifact and gate
-Write `docs/idea-validation.md` using `references/validation-doc-template.md`. Create the `docs/`
-directory if needed. Then **STOP** — this is a hard gate:
+Write `docs/project-spec/idea-validation.md` using `references/validation-doc-template.md`. Create the
+`docs/project-spec/` directory if needed. Then **STOP** — this is a hard gate:
 
-> "Validation doc written to docs/idea-validation.md. Review it. When you approve, run `/prd` to
-> start the next phase. I will not proceed automatically."
+> "Validation doc written to docs/project-spec/idea-validation.md. Review it. When you approve, run
+> `/define-product-requirements` for the next step. I will not proceed automatically."
 
-Do NOT start PRD, UX, or architecture work in this session unless the user explicitly approves
-and asks.
+Do NOT start product-requirements, UX, or architecture work in this session unless the user
+explicitly approves and asks.
 
 ## Rules
 

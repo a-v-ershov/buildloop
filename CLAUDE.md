@@ -64,32 +64,53 @@ collections (gstack, BMAD-METHOD, Spec Kit, Pimzino spec-workflow):
 - **Persona + anti-sycophancy.** Validation and review skills adopt an explicit critical
   persona, take a position, and name failure patterns instead of hedging.
 
-## Development-process skill pipeline (PRD phase)
+## Development-process skill pipeline (project-spec phase)
 
 The "raw idea → initial project documentation" flow is a fixed, phased pipeline. Each phase is
-its own skill, adopts a persona, and writes one persistent artifact that the next phase reads.
+its own focused skill, adopts a persona, and writes one persistent artifact that the next phase
+reads. The `create-project-spec` skill is a thin **orchestrator** that sequences the sub-skills,
+pausing at each hard gate — it conducts, it does not duplicate phase logic.
 
 | # | Skill | Persona | Artifact |
 |---|-------|---------|----------|
-| 1 | `idea-validation` | Founder-turned-investor | `docs/idea-validation.md` |
-| 2 | `prd` | Product manager | `docs/prd.md` |
-| 3 | `ux-journey` | Product designer | `docs/ux-journey.md` |
-| 4 | `architecture` | Software architect (requirements-first) | `docs/architecture.md` + `docs/adr/*` |
-| 5 | `review-doc` | Critic (rubric gate, reusable) | annotates the target doc |
+| — | `create-project-spec` | Orchestrator (conductor) | — (sequences the steps below) |
+| 1 | `validate-idea` | Founder-turned-investor | `docs/project-spec/idea-validation.md` |
+| 2 | `define-product-requirements` | Product manager | `docs/project-spec/product-requirements.md` |
+| 3 | `create-user-flows` | Product designer | `docs/project-spec/user-flows.md` |
+| 4 | `design-architecture` | Software architect (requirements-first) | `docs/project-spec/architecture.md` (+ `docs/project-spec/adr/*`) |
+| — | `review-doc` | Critic (rubric gate, reusable) | annotates the target doc |
+
+**Artifact location & naming: all project-spec artifacts live in `docs/project-spec/` and are
+named as descriptive nouns** (skills are verbs; their outputs are nouns) — `validate-idea` →
+`docs/project-spec/idea-validation.md`, `define-product-requirements` →
+`docs/project-spec/product-requirements.md`, `create-user-flows` →
+`docs/project-spec/user-flows.md`, `design-architecture` → `docs/project-spec/architecture.md`
+(+ `docs/project-spec/adr/`).
 
 Conventions for these skills:
 
-- **Artifacts live in the repo under `docs/`.** Phase N reads phase N−1's artifact from there.
+- **Artifacts live in the repo under `docs/project-spec/`.** Phase N reads phase N−1's artifact
+  from there. Each skill creates the directory if it does not exist.
 - **Hard gate between phases.** A phase skill must finish its artifact and get explicit user
   approval before the next phase starts. Never jump ahead to a later phase's concern.
+- **The `create-project-spec` orchestrator conducts, never duplicates.** It invokes each sub-skill via the Skill
+  tool, lets it run to its hard gate, gets approval, then advances. It resolves the language
+  settings once and propagates them to every sub-skill. Each sub-skill remains independently
+  runnable on its own.
 - **Idea validation is adversarial.** A cheap KILL / SKIP / SHRINK pre-filter, then forcing
   questions (demand, audience specificity, problem validation, status-quo competitor, wedge,
   business model). Its only output is the validation doc — no solutioning.
+- **Two layers: product, then technical.** `define-product-requirements` + `create-user-flows` form the
+  product layer (WHAT and for WHOM — features, audience, user flows). `design-architecture` is
+  the separate technical layer (HOW). Product-layer skills never make technical/stack decisions.
+- **The product definition captures the full committed feature set — no prioritization.** No
+  must/should/could tiers, no MVP cut line, no deferred-feature backlog. Everything in the
+  feature list ships; a feature that doesn't belong is removed, not parked. Every feature traces
+  to a validated need.
 - **Architecture is requirements-first.** Elicit quality-attribute scenarios (cost, performance,
   security, reliability, scale) first; then propose 2–3 component options with trade-offs.
   Separate WHAT from HOW — do NOT commit to specific frameworks here. Record significant
   decisions as ADRs (options + ruled-out alternatives + trade-offs + status).
-- A router/orchestrator over these skills is deferred until the manual flow stabilizes.
 
 ## Authoring conventions
 
