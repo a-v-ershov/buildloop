@@ -31,7 +31,7 @@ same. This never translates code or identifiers.
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If it is absent (standalone run), ask the user both settings once (default
+`final_summary`. If it is absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -161,6 +161,18 @@ Then write `docs/project-spec/idea-validation.summary.md` from
 
 Do NOT start product-requirements, UX, or architecture work in this session unless the user
 explicitly approves and asks.
+
+## Existing-project mode
+
+When `project_type: existing`, the product is already built — adversarially asking "should this
+exist?" is theater. Validate the **go-forward, not the existence**: the verdict becomes
+`continue | shrink-the-target | pivot | sunset`, pressure-testing the *new intent* and the *unbuilt
+TARGET delta*, using the codebase map's `## Observations & risks` as adversarial fuel (e.g. "no usage
+instrumentation — you can't claim traction"). For a pure "document what exists to extend it" run with
+no new bets, **self-skip** with a one-line logged rationale (the orchestrator allows the skip in
+existing mode). A `sunset`/`pivot` on a live product is heavier than a greenfield `kill` — in
+autopilot, mark it `Needs human confirm? = yes`. Full contract:
+**`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Rules
 

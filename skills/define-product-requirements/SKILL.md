@@ -36,7 +36,7 @@ same. This never translates code or identifiers.
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If absent (standalone run), ask the user both settings once (default
+`final_summary`. If absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -166,6 +166,17 @@ relations). Format rules: **`../_shared/spec-pipeline/output-format.md`**.
   standalone, report the two files + the must-answer forks).
 
 Do NOT start user-flow or architecture work in this session unless the user explicitly approves.
+
+## Existing-project mode
+
+When `project_type: existing`, read `docs/project-spec/codebase-map.research.md` at Stage 0 and
+**pre-fill the committed feature set from the implemented surfaces**, and the domain model + glossary
+from the code's actual entities/vocabulary (default: **keep the code's names** — a rename is opt-in
+drift → a refactor task later). Then interview to mark each inferred feature **keep / change /
+remove** and add **TARGET-only** features the code doesn't yet have. Write the doc oriented to TARGET;
+log every change/remove/new in the Forks / Decisions log with the drift columns. Acceptance criteria
+are written for matching features too — they become the verifier's regression net. Full contract:
+**`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Amend mode (change propagation)
 

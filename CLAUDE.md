@@ -109,9 +109,23 @@ light research, a coverage-critic review) and is **also a reusable grill** — a
 it scoped to a fork blocked on context only the user holds, and the user can invoke it directly at
 any time to be interviewed on any topic.
 
+The same pipeline also has a **brownfield entry for an already-built codebase** (`project_type:
+existing`, a third `.spec-config.md` setting the orchestrator detects-then-confirms). For an existing
+project a phase-0 skill — **`map-codebase`** — runs first: a forensic "code archaeologist" that
+reverse-engineers the **as-is** facts (structure, stack, domain model, surfaces/flows, tests,
+build/run/env) into `codebase-map.research.md`, tagging each fact observed/claimed/unknown and judging
+nothing. Then every phase runs in **existing-project mode**: it pre-fills its answers from the map,
+interviews the user only for the intent the code can't show, and writes a **TARGET** spec while
+logging each **drift** (built-but-divergent / built-but-unwanted / intended-not-yet-built) — so
+`plan-development` can later turn the gap into build tasks. The behavior is defined once in
+`_shared/spec-pipeline/existing-project-mode.md` and every phase carries a thin `## Existing-project
+mode` pointer to it. `validate-idea` reframes to validate the **go-forward, not the existence** (and
+may self-skip for a pure documentation run). Greenfield is unchanged and stays the default.
+
 | # | Skill | Persona | Research doc (+ `.summary.md`; review intermediate) |
 |---|-------|---------|-----------------------------------------------------|
 | — | `create-project-spec` | Orchestrator (conductor) | — (sequences the steps below; builds the final `summary.md`) |
+| 0 | `map-codebase` *(existing projects only)* | Code archaeologist (reverse-engineer) | `docs/project-spec/codebase-map.research.md` |
 | 1 | `gather-context` | Discovery interviewer (the grill) | `docs/project-spec/project-brief.research.md` |
 | 2 | `validate-idea` | Founder-turned-investor | `docs/project-spec/idea-validation.research.md` |
 | 3 | `define-product-requirements` | Product manager | `docs/project-spec/product-requirements.research.md` |
@@ -158,15 +172,27 @@ Conventions for these skills:
   subagent that writes `<noun>.review.md`, merges the corrections back, and **deletes the review
   file** after merging (only the research doc + summary survive). Modeled on the `vibecoding_course`
   `video-research` skill (research → проверка → synthesis).
-- **Two run modes, set once.** `create-project-spec` (or the first standalone phase) asks two
-  settings and writes `docs/project-spec/.spec-config.md`: `mode` (`interactive` | `autopilot`)
-  and `final_summary` (`true` | `false`). **interactive** pauses at each fork and each phase's
-  hard gate. **autopilot** lets the AI resolve every fork itself and run phases back-to-back —
-  but it still researches, reviews, and writes both kept files, and **logs every fork** (choice +
-  rationale + confidence) in the doc's `## Forks / Decisions log`; low/medium-confidence forks
-  surface in the human summary as "must answer". Autopilot changes *who answers*, never *whether
-  it's recorded*. Each phase reads the config and is independently runnable (asks the two settings
-  itself when the config is absent).
+- **Run settings, set once.** `create-project-spec` (or the first standalone phase) asks three
+  settings and writes `docs/project-spec/.spec-config.md`: `mode` (`interactive` | `autopilot`),
+  `final_summary` (`true` | `false`), and `project_type` (`greenfield` | `existing`; absent ⇒
+  greenfield). **interactive** pauses at each fork and each phase's hard gate. **autopilot** lets the
+  AI resolve every fork itself and run phases back-to-back — but it still researches, reviews, and
+  writes both kept files, and **logs every fork** (choice + rationale + confidence) in the doc's
+  `## Forks / Decisions log`; low/medium-confidence forks surface in the human summary as "must
+  answer". Autopilot changes *who answers*, never *whether it's recorded*. `project_type` is
+  orthogonal to `mode` and stacks with it (in autopilot+existing, anything that discards/rewrites
+  working code is still marked `Needs human confirm? = yes`). Each phase reads the config and is
+  independently runnable (asks the settings itself when the config is absent).
+- **Existing-project entry (brownfield) reconstructs the spec from code.** When `project_type:
+  existing`, `map-codebase` runs first (phase 0) to chart the **as-is** facts into
+  `codebase-map.research.md` (observed/claimed/unknown, no judgement), then every phase runs in
+  existing-project mode — pre-fill from the map, interview for the intent the code can't show, write
+  a **TARGET** spec, and log **drift** (the optional `AS-IS`/`TARGET`/`Drift?` columns on the Forks /
+  Decisions log) so `plan-development` delta mode can emit only the gap. Output is the **same**
+  `docs/project-spec/` artifacts, so the build pipeline runs unchanged. One shared methodology doc
+  (`_shared/spec-pipeline/existing-project-mode.md`); each phase carries a thin `## Existing-project
+  mode` pointer. `validate-idea` validates the go-forward, not existence (may self-skip). Greenfield
+  is the default and is untouched.
 - **The `create-project-spec` orchestrator conducts, never duplicates.** It invokes each sub-skill via the Skill
   tool, lets it run its internal pipeline, then advances per the mode (approval gate in
   interactive, straight through in autopilot). Each sub-skill responds in the user's language on

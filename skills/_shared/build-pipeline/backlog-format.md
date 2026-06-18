@@ -68,9 +68,11 @@ was done, what was found, evidence links. The verifier's findings accumulate as 
 
 - **`type`** — `setup` (an environment/scaffolding task, run by `setup-dev-environment`), `feature`
   (a product feature, run by `implement-feature` then `verify-feature`), `verify` (an optional
-  cross-cutting check, e.g. an end-to-end pass over several features), `rework` (a fix to
-  already-built code — filed by a release-phase `audit-*` finding, or by a `propagate-changes`
-  reopen; `traces_to` points at the audit finding / changed spec section; **dispatched exactly like
+  cross-cutting check, e.g. an end-to-end pass over several features, or — in an existing project —
+  proving a pre-existing/adopted feature against its acceptance criteria), `rework` (a fix to
+  already-built code — filed by a release-phase `audit-*` finding, a `propagate-changes` reopen, or
+  `plan-development` delta mode reconciling a brownfield codebase against the target spec; `traces_to`
+  points at the audit finding / changed spec section / as-is map finding; **dispatched exactly like
   `feature`**: `implement-feature` then `verify-feature`).
 - **`summary`** — one line, plain language, no jargon; this is what the board shows a human.
 - **`status`** — see the lifecycle below.

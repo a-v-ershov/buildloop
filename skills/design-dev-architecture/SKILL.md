@@ -53,7 +53,7 @@ This never translates code or identifiers (technology and tool names stay as-is)
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If absent (standalone run), ask the user both settings once (default
+`final_summary`. If absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -261,6 +261,17 @@ forks the human must answer + open risks. Format rules:
 
 Do NOT scaffold the project, write the compose files, or install tooling in this session unless
 the user explicitly approves and asks.
+
+## Existing-project mode
+
+When `project_type: existing`, design the inner loop around **what already runs**: read
+`docs/project-spec/codebase-map.research.md` for the mapped build/run/CI/test/env, and take the
+existing compose/Dockerfile/Makefile as the starting point — divergences from prod-parity that
+already exist become named risks. Do **not** re-open the stack (settled by `design-architecture`'s
+adopted ADRs). Gaps the map reveals (no e2e harness, no structured logging, no env-access lock)
+become **TARGET items** that `setup-dev-environment` (adopt mode) and `plan-development` (delta mode)
+later fill. Log drift in the Forks / Decisions log with the drift columns. Full contract:
+**`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Amend mode (change propagation)
 

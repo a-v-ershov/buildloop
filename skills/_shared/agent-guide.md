@@ -51,6 +51,7 @@ invent artifacts the pipeline does not produce.
 Known artifacts (the `.research.md` files are the depth; each has a short `.summary.md` human pair):
 
 - `docs/project-spec/summary.md` — combined human summary (read first).
+- `docs/project-spec/codebase-map.research.md` — *(existing projects only)* the as-is map reverse-engineered from the code (structure, stack, domain, surfaces) — what's built, before the TARGET spec.
 - `docs/project-spec/project-brief.research.md` — the discovery brief (the user's original intent, scope, constraints).
 - `docs/project-spec/idea-validation.research.md` — why this exists (validation).
 - `docs/project-spec/product-requirements.research.md` — features, acceptance criteria, domain model.

@@ -45,6 +45,21 @@ deleted `.review.md` leaves a trace).
 - **Needs human confirm?** = `yes` for anything the AI decided at medium/low confidence, or any
   fork with material downside if wrong. These are what the human summary surfaces.
 
+**Existing-project mode adds three optional columns** — `AS-IS`, `TARGET`, `Drift?` — appended after
+`Source`, filled only for forks that reconcile built code against intent (see
+`existing-project-mode.md`). They are **blank or absent in greenfield** (the default). When present:
+
+```
+| # | Fork | Options | Decision | By | Rationale | Confidence | Source | AS-IS | TARGET | Drift? | Needs human confirm? |
+|---|------|---------|----------|----|-----------|-----------|--------|-------|--------|--------|----------------------|
+| 1 | <question> | A / B / C | <chosen> | AI\|human | <why> | high\|med\|low | [S2] or — | <what the code does> | <what's intended> | no\|change\|remove\|new | yes\|no |
+```
+
+- **AS-IS** = what `map-codebase` found in the code · **TARGET** = the intended state · **Drift?** =
+  `no` (keep — AS-IS already matches) · `change` (built but divergent) · `remove` (built, not wanted)
+  · `new` (intended, not yet built). `plan-development` delta mode reads this column to decide each
+  task's fate.
+
 ## 2. Human report — `<artifact>.summary.md`
 
 The **only** artifact written for the human — everything detailed lives in `.research.md`, which is

@@ -31,11 +31,13 @@ Installed as a plugin, the skills are namespaced — invoke them as `builder-ski
 
 Entry point: **`create-project-spec`** (a thin conductor that sequences the phases below). Each phase
 elicits → researches real-world facts → drafts → runs an adversarial self-review → merges → emits a
-detailed `*.research.md` + a short `*.summary.md`. Two run modes chosen once (`interactive` pauses at
-each gate; `autopilot` runs through and logs every decision); config in `docs/project-spec/.spec-config.md`.
+detailed `*.research.md` + a short `*.summary.md`. Run settings chosen once (`mode`: `interactive`
+pauses at each gate / `autopilot` runs through and logs every decision; `final_summary`;
+`project_type`: `greenfield` / `existing`); config in `docs/project-spec/.spec-config.md`.
 
 | # | Skill | Produces (under `docs/project-spec/`) |
 |---|-------|----------------------------------------|
+| 0 | `map-codebase` *(existing projects only)* | `codebase-map.research.md` — reverse-engineered as-is facts (structure, stack, domain, surfaces) |
 | 1 | `gather-context` | `project-brief.research.md` — discovery interview; settled intent the rest reads |
 | 2 | `validate-idea` | `idea-validation.research.md` — adversarial KILL/SHRINK/forcing-questions pre-filter |
 | 3 | `define-product-requirements` | `product-requirements.research.md` — full committed feature set + acceptance criteria + domain model |
@@ -43,6 +45,11 @@ each gate; `autopilot` runs through and logs every decision); config in `docs/pr
 | 5 | `define-design-decisions` | `design-decisions.research.md` — the product→technical bridge (design direction, not mockups) |
 | 6 | `design-architecture` | `architecture.research.md` (+ `adr/`) — requirements-first system architecture |
 | 7 | `design-dev-architecture` | `dev-architecture.research.md` (+ `adr/`) — the AI-first inner loop |
+
+**Existing project (brownfield):** with `project_type: existing`, `map-codebase` runs first to chart the
+as-is code, then phases 1–7 run in **existing-project mode** — reconstructing a *target* spec from the map
++ the user's intent and logging drift (built-but-divergent / unwanted / not-yet-built). Output is the same
+artifacts, so the build pipeline runs unchanged. Method: `_shared/spec-pipeline/existing-project-mode.md`.
 
 ### 2. Build pipeline — spec → working software (mutates the repo)
 

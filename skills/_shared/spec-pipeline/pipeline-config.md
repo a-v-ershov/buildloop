@@ -1,10 +1,10 @@
 # Pipeline config & modes (shared — spec pipeline)
 
-Two settings govern how every phase behaves. The orchestrator sets them once; each phase skill
+Three settings govern how every phase behaves. The orchestrator sets them once; each phase skill
 reads them and adapts. Phase skills are also runnable standalone, so they fall back gracefully
 when no config exists.
 
-## The two settings
+## The settings
 
 - **`mode`** — `interactive` (default) | `autopilot`.
   - `interactive`: at every fork, ask the human; stop at the phase's hard gate for approval.
@@ -13,6 +13,15 @@ when no config exists.
     medium-confidence forks are surfaced in the human summary as "must answer".
 - **`final_summary`** — `true` (default) | `false`. Whether the orchestrator builds the combined
   `docs/project-spec/summary.md` at the end of the run.
+- **`project_type`** — `greenfield` (default) | `existing`.
+  - `greenfield`: the spec is elicited from the user's head; there is no code yet. The pipeline runs
+    exactly as documented elsewhere.
+  - `existing`: the spec is **reconstructed from an already-built codebase**. The orchestrator runs
+    `map-codebase` before `gather-context`, and every phase runs in **existing-project mode** (read
+    the codebase map → draft AS-IS → interview to set TARGET + flag drift). Full method:
+    **`existing-project-mode.md`**.
+  - **Absent ⇒ `greenfield`** — every spec written before this field existed keeps working untouched,
+    and the existing-mode drift columns in the Forks / Decisions log stay blank.
 
 ## Config file — `docs/project-spec/.spec-config.md`
 
@@ -24,16 +33,19 @@ standalone). Format:
 
 - mode: interactive        # interactive | autopilot
 - final_summary: true      # true | false
+- project_type: greenfield # greenfield | existing
 ```
 
 ## How a phase skill uses it
 
 1. At intake, read `docs/project-spec/.spec-config.md`.
-2. **Present:** use `mode` for this phase.
-3. **Absent (standalone run):** ask the user the two settings (one `AskUserQuestion`, defaults
-   pre-selected: interactive + final_summary true), then write `.spec-config.md` so later
-   standalone phases inherit the choice. If the user just wants the single phase, interactive is
-   the safe default.
+2. **Present:** use `mode` for this phase. If `project_type: existing`, also run the phase's
+   existing-project mode (see `existing-project-mode.md`).
+3. **Absent (standalone run):** ask the user the settings (one `AskUserQuestion`, defaults
+   pre-selected: interactive + final_summary true + project_type greenfield), then write
+   `.spec-config.md` so later standalone phases inherit the choice. If the user just wants the
+   single phase, interactive is the safe default. A standalone phase run in a repo that clearly
+   already has code should default `project_type` to `existing` and confirm.
 
 Whenever you create the `docs/project-spec/` directory (here or when first writing an artifact),
 also create a local `docs/project-spec/.gitignore` containing `*.review.md` if it is absent — a

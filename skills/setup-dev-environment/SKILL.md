@@ -1,6 +1,6 @@
 ---
 name: setup-dev-environment
-description: "Turn the dev-architecture spec into a real, runnable local environment. Use after the project-spec pipeline (reads docs/project-spec/dev-architecture.research.md and architecture.research.md + adr/*), as the first step of the build/development phase, to scaffold the repo and bring up the inner loop: install tooling, init the repo (.gitignore, project CLAUDE.md, settings.json), write the Docker Compose stack + seed data + one-command bring-up, and wire the AI tooling (MCP servers, plugins). Runs an internal plan → approve → execute: it plans everything but auto-executes only repo-local scaffolding; global installs, API keys, and Claude plugins run only with explicit confirmation. Idempotent (safe to re-run), detect-state-first. Ends with a smoke-test that proves the stack actually comes up, and writes docs/project-setup/verification.md (the concrete run/drive/prove commands the verify-feature skill later reads) plus a setup-log. The first build-phase skill; run before plan-development and build-product."
+description: "Turn the dev-architecture spec into a real, runnable local environment. Use after the project-spec pipeline (reads docs/project-spec/dev-architecture.research.md and architecture.research.md + adr/*), as the first step of the build/development phase, to scaffold the repo and bring up the inner loop: install tooling, init the repo (.gitignore, project CLAUDE.md, settings.json), write the Docker Compose stack + seed data + one-command bring-up, and wire the AI tooling (MCP servers, plugins). Runs an internal plan → approve → execute: it plans everything but auto-executes only repo-local scaffolding; global installs, API keys, and Claude plugins run only with explicit confirmation. Idempotent (safe to re-run), detect-state-first. For an existing project (project_type: existing) it runs in adopt mode: it reads the reverse-engineered codebase-map, adopts and extends what's already there (compose, Makefile, existing lint/type tools wired behind make check) and fills only the gaps, never re-scaffolding. Ends with a smoke-test that proves the stack actually comes up, and writes docs/project-setup/verification.md (the concrete run/drive/prove commands the verify-feature skill later reads) plus a setup-log. The first build-phase skill; run before plan-development and build-product."
 ---
 
 # Setup Dev Environment Skill
@@ -176,6 +176,32 @@ outcome; the dummy-auth token and seed/reset commands; where logs are). This is 
   TODOs), verification.md (how features will be verified). Next: `/plan-development` to build the backlog."
 - **autopilot:** record the same and hand back to the orchestrator (or, standalone, report the files
   and any outstanding manual TODOs).
+
+## Adopt mode (existing project)
+
+When `project_type: existing` (in `docs/project-spec/.spec-config.md`), the repo already has a working
+dev setup — adopt mode is mostly this skill's **detect-state-first idempotency doing its job**, with
+three brownfield specifics. (No re-scaffolding: an existing project very likely already has a
+`CLAUDE.md`, a compose file, a Makefile.)
+
+1. **The map seeds detection.** At Stage 0, also read `docs/project-spec/codebase-map.research.md` —
+   its *Build / run / CI / env* and *Tests & quality gate* sections — so the plan starts from
+   **documented** present-state, not only live probing (it catches a CI workflow that defines the real
+   gate, a `.env.example` listing required secrets, an existing run command). The Stage-2 plan is then
+   computed as **(what the TARGET inner loop in `dev-architecture` needs) minus (what the map + live
+   probe already show present)**.
+2. **Fill gaps, adopt & extend — never overwrite.** An existing `Dockerfile` / compose / `Makefile` is
+   adopted and extended (back up before any edit, per the standard rule), never blown away. The
+   **quality gate** wires the *existing* lint/format/type-check tools the map found behind one
+   `make check` + the hooks, rather than installing new ones (the gate "executes the chosen tools, it
+   doesn't re-pick" — here the chosen tools are the ones already in the repo). Env-access helper and
+   dev-script skeletons are scaffolded only where absent; an existing lock/isolation scheme is adopted.
+   `verification.md` is still written **fresh** from the now-real stack (an existing repo without it is
+   "unfinished" by rule 6).
+3. **Smoke-test includes the existing gate's honesty.** "Green" means the existing stack comes up via
+   the one command **and** the gate now has teeth — which may require fixing a gate the repo had red
+   (the map said tests exist; do they pass?). A red pre-existing gate is **surfaced**, not silently
+   accepted — report it and offer to fix, or file it for `plan-development` delta mode as a gap.
 
 ## Rules
 

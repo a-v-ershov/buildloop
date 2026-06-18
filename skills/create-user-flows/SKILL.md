@@ -36,7 +36,7 @@ same. This never translates code or identifiers.
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If absent (standalone run), ask the user both settings once (default
+`final_summary`. If absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -164,6 +164,15 @@ open risks. Format rules: **`../_shared/spec-pipeline/output-format.md`**.
 
 Do NOT start design-decisions, architecture, or any technical work in this session unless the user
 explicitly approves.
+
+## Existing-project mode
+
+When `project_type: existing`, read `docs/project-spec/codebase-map.research.md` and **reconstruct
+the de-facto flows** from the mapped routing + navigation + auth touchpoints first, then interview to
+mark each step **keep / change / remove** and add **TARGET-only** flows. The doc describes the target
+flows; drift (a flow that exists but isn't wanted, or a wanted flow not yet built) is logged in the
+Forks / Decisions log with the drift columns. Full contract:
+**`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Amend mode (change propagation)
 

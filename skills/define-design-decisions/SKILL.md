@@ -49,7 +49,7 @@ This never translates code or identifiers (design-system, platform, and tool nam
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If absent (standalone run), ask the user both settings once (default
+`final_summary`. If absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -181,6 +181,15 @@ forks the human must answer + open risks. Format rules:
 
 Do NOT start architecture work, produce mockups, or write any UI code in this session unless the
 user explicitly approves and asks.
+
+## Existing-project mode
+
+When `project_type: existing`, read `docs/project-spec/codebase-map.research.md` and record the
+**realized design direction** (design system / UI libraries / target platforms / viewport behavior as
+present), then interview to set the TARGET. An AS-IS choice the user wants swapped is drift (`change`)
+AND an input to `design-architecture`'s quality-attribute scenarios. Log drift in the Forks /
+Decisions log with the drift columns. Full contract:
+**`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Amend mode (change propagation)
 

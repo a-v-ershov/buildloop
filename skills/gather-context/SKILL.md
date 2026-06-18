@@ -61,7 +61,7 @@ never translates code or identifiers.
 ## Modes (read this first)
 
 Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`) and
-`final_summary`. If absent (standalone run), ask the user both settings once (default
+`final_summary`. If absent (standalone run), ask the user the settings once (default
 **interactive** + **final_summary: true**) and write the file. Full rules:
 **`../_shared/spec-pipeline/pipeline-config.md`**.
 
@@ -179,6 +179,16 @@ A focused mini-interview on one topic; no pipeline ceremony.
    own Forks / Decisions log. If a `project-brief.research.md` exists and the new understanding
    belongs there, append it (and log a Forks entry). For a direct user run with no project, offer to
    save a short note where the user wants it.
+
+## Existing-project mode
+
+When `project_type: existing` (set in `.spec-config.md`), `map-codebase` has already run and written
+`docs/project-spec/codebase-map.research.md` — the as-is facts. At Stage 0, read it, and **reframe the
+intake interview**: not "what do you want to build?" but *"here's what you've built — what's the
+intended direction, what's drift you want fixed, what's deliberate?"* Self-answer the brief dimensions
+from the map (the product, the audience the code serves, the de-facto scope) and spend the human's
+attention only on the intent the code can't show. The brief you write is **target intent**, distinct
+from the map's as-is facts. Full contract: **`../_shared/spec-pipeline/existing-project-mode.md`**.
 
 ## Rules
 
