@@ -51,7 +51,10 @@ as objective; "the source doesn't support this"; internal contradiction; unsuppo
 Spec-specific: a feature/requirement that traces to **no validated need**; a user flow that needs a
 capability **not in the requirements**; a success metric with no signal/target/measurement; an
 audience too vague to act on ("everyone"); a fork resolved with weak or no justification; a claim
-that contradicts a prior phase's approved artifact.
+that contradicts a prior phase's approved artifact; an **unfilled template placeholder or a left-in
+`TODO` / `TBD` / `???` / `<...>`**, and an **acceptance criterion or success metric with no number
+or observable outcome** — these silently survive into implementation. Severity: an empty placeholder
+or an unmeasurable criterion is 🔴; a deliberate, labelled "TBD — decided in phase N" is 🟡.
 
 ## Severity
 

@@ -31,6 +31,10 @@ Spec-specific (also flag these):
 - An audience or persona too vague to act on ("enterprises", "everyone").
 - A fork resolved in the draft with weak or no justification.
 - A claim that contradicts a prior phase's approved artifact.
+- An unfilled template placeholder or a left-in `TODO` / `TBD` / `???` / `<...>`, or an acceptance
+  criterion / success metric with no number or observable outcome — they silently reach
+  implementation. (🔴 for an empty placeholder or an unmeasurable criterion; 🟡 for a deliberate,
+  labelled "TBD".)
 
 ## Severity
 

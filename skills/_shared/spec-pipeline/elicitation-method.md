@@ -19,9 +19,13 @@ material is still unknown — not after N questions.
 
 ## Principles (non-negotiable)
 
-- **One thread at a time.** Never dump a list of questions. Pursue one dimension (one fork) to the
-  bottom, then move to the next. A wall of questions gets shallow answers; a single sharp question
-  gets a real one.
+- **One thread at a time — but batch the independent, already-sharp forks.** Pursue one dimension
+  (one fork) to the bottom before moving on; depth is what gets real answers, where a wall of vague
+  open questions gets shallow ones. That applies to *open* questions. When several forks are
+  *independent* — no one depends on another's answer — and each already reduces to a small set of
+  options with a recommendation, present them together in one structured prompt rather than one slow
+  round-trip each (see *Choosing how to ask*). Never batch a question whose framing depends on an
+  unanswered one — keep dependency order (next principle).
 - **Walk the decision tree, resolving dependencies in order.** Later questions depend on earlier
   answers — settle the upstream decision first, then ask the ones it unlocks. Never ask a question
   whose answer an earlier answer already implies; never ask in an order that forces the human to
@@ -37,11 +41,35 @@ material is still unknown — not after N questions.
 - **Push past the first answer.** The first answer is the polished one; the real context is in the
   second and third. When an answer is generic ("users", "make it fast", "like everyone else"), ask
   the follow-up that forces specificity — a name, a number, a concrete example, a real situation.
+- **Surface ambiguity by imagining the alternatives.** Before asking about an underspecified point,
+  generate two or three plausible readings of it yourself. If they would lead to *different*
+  products, you've found a real fork — ask the question that splits them (ideally as the options of
+  one structured question), not a vague open one. If they'd converge on the same build, don't ask.
 - **Mirror back to confirm shared understanding.** Periodically restate what you've heard in your
   own words and have the human correct it. Name contradictions out loud ("earlier you said X, now
   Y — which holds?"). Shared understanding is something you *verify*, not assume.
 - **Cover, then stop.** Track what you've covered against this phase's dimensions. Don't over-grill
   a settled point or chase detail that won't change the doc.
+
+## Choosing how to ask (the mechanism)
+
+The principles above are *what* to ask; this is *how* to deliver it.
+
+- **Closed fork (a small set of options) → use `AskUserQuestion`.** Put the answer you'd pick first
+  and label it `(Recommended)`, and give each option a one-line consequence. The tool pauses and
+  lets the human pick with a click instead of composing prose — that is the speed unlock. Always
+  leave room for a free-form answer: "you decide" and "not relevant to this" are valid, and the tool
+  takes custom input.
+- **Batch the independent forks.** `AskUserQuestion` takes up to four questions in one call — when
+  several forks are independent, ask them together rather than serially. Keep *dependent* forks in
+  separate, ordered calls: you cannot frame a question whose options hinge on one the human hasn't
+  answered yet.
+- **Open-ended thread → prose.** When a dimension needs a story, not a choice ("walk me through how
+  you do this today"), ask in plain conversation and go deep with follow-ups — a structured prompt
+  would force a false multiple-choice. Use judgement: a live, thinking dialogue beats both a rigid
+  questionnaire and a guessed default.
+- **`autopilot` doesn't prompt.** There is no human to ask, so resolve every fork yourself and log
+  it (below); `AskUserQuestion` is for the interactive interview only.
 
 ## Stop condition (shared understanding reached)
 
