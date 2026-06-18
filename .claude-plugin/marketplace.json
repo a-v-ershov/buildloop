@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "builder-skills",
-      "source": "./plugins/builder-skills",
+      "source": "./",
       "description": "The create-project-spec pipeline (validate-idea -> define-product-requirements -> create-user-flows -> design-architecture) plus a commit skill. Each skill responds and thinks in whatever language you address it in."
     }
   ]

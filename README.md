@@ -40,7 +40,7 @@ The plugin carries an explicit `version`, so an install only picks up changes on
 is **bumped** — pushing skill changes without a bump is ignored downstream.
 
 **Maintainer side** (this repo): change the skills, bump `version` in
-`plugins/builder-skills/.claude-plugin/plugin.json` (and `metadata.version` in
+`.claude-plugin/plugin.json` (and `metadata.version` in
 `.claude-plugin/marketplace.json`), then push.
 
 **Consumer side** (any project that has it installed): refresh the catalog, update the plugin,
@@ -58,7 +58,8 @@ Or enable auto-update once — `/plugin` → **Marketplaces** → `builder-skill
 ## Develop
 
 This repo is both the marketplace (`.claude-plugin/marketplace.json`) and the plugin it ships
-(`plugins/builder-skills/`). After editing, validate the manifests:
+— the plugin is collapsed into the repo root (`.claude-plugin/plugin.json` + `skills/`), so the
+marketplace entry uses `source: "./"`. After editing, validate the manifests:
 
 ```
 claude plugin validate .

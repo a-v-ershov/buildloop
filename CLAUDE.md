@@ -34,23 +34,26 @@ Guidelines:
 This repo is **both a Claude Code plugin marketplace and the plugin it ships** — so the skills
 can be installed into any project from GitHub.
 
+The plugin is collapsed into the repo root: the marketplace catalog and the plugin manifest
+both live in `.claude-plugin/`, and the plugin's components sit at the repo root.
+
 ```
-.claude-plugin/marketplace.json          # marketplace catalog (lists the plugin)
-plugins/builder-skills/
-  .claude-plugin/plugin.json             # the plugin manifest
-  skills/<name>/SKILL.md                 # one directory per skill
-  skills/<name>/references/*.md          # bundled templates/rubrics (progressive disclosure)
-  skills/_shared/spec-pipeline/*.md      # shared methodology for the project-spec phases (no SKILL.md)
+.claude-plugin/marketplace.json          # marketplace catalog (lists the plugin; source: "./")
+.claude-plugin/plugin.json               # the plugin manifest
+skills/<name>/SKILL.md                   # one directory per skill
+skills/<name>/references/*.md            # bundled templates/rubrics (progressive disclosure)
+skills/_shared/spec-pipeline/*.md        # shared methodology for the project-spec phases (no SKILL.md)
 CLAUDE.md
 README.md
 ```
 
-- Skills live under `plugins/builder-skills/skills/`. Component dirs (`skills/`, and later
+- Skills live under `skills/` at the repo root. Component dirs (`skills/`, and later
   `commands/`, `agents/`) sit at the **plugin root**, not inside `.claude-plugin/`.
 - `SKILL.md` = YAML frontmatter (`name` + `description`) + a thin procedure with a copyable
   checklist. Long templates go in `references/` and load on demand.
-- Marketplace plugin `source` must be a relative path starting with `./` (here
-  `./plugins/builder-skills`); a repo-root/`"."` source is NOT supported.
+- Marketplace plugin `source` must be a relative path starting with `./`. Because the plugin is
+  the repo root, the source is `"./"` (the marketplace-root source). A bare `"."` is NOT a valid
+  source — relative paths must start with `./`.
 - Validate any change with `claude plugin validate .`.
 
 ### Installing the skills into another project
@@ -64,7 +67,7 @@ Skills then appear namespaced as `builder-skills:<skill>` (e.g. `builder-skills:
 
 ### Versioning
 
-The plugin carries an explicit `version` in `plugins/builder-skills/.claude-plugin/plugin.json`
+The plugin carries an explicit `version` in `.claude-plugin/plugin.json`
 (semver). Consumers only receive changes via `/plugin update` when this version is **bumped** —
 pushing skill changes without bumping is ignored downstream.
 
