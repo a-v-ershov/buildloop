@@ -28,8 +28,9 @@ not commit — those are the orchestrator's job.
 ## Inputs and outputs
 
 - **Reads:** the task file (`## Description`, `acceptance`, `## Log`), the spec sections it
-  `traces_to`, the project `CLAUDE.md`, and `docs/project-setup/verification.md` (to self-check). On a
-  re-round, the verifier's failure findings already in the task `## Log`.
+  `traces_to`, the project `CLAUDE.md`, the root `DESIGN.md` (the design system, for UI work), and
+  `docs/project-setup/verification.md` (to self-check). On a re-round, the verifier's failure findings
+  already in the task `## Log`.
 - **Writes:** code in the working tree; the task's `status` → `in_progress` (with a `history` entry); a
   `## Log` note of what was built and the happy-path self-check result.
 
@@ -72,8 +73,12 @@ Confirm the task is `ready` (its `blocked_by` are all `done`); if a blocker isn'
 
 ### Stage 1: Build
 Implement the feature on the current branch. Follow the project's conventions and existing patterns;
-keep the change scoped to this task's acceptance criteria. On a re-round, fix exactly the verifier's
-findings (and any obvious related breakage), not a wholesale rewrite.
+keep the change scoped to this task's acceptance criteria. **For UI work, build against the root
+`DESIGN.md`** — its tokens (colors, type, spacing, components) and its Do's/Don'ts are the design
+system; apply them rather than inventing styles. If the task's `## Description` carries a **design-note**
+from `generate-mockups` (a chosen mockup variant — layout, hierarchy, component usage, with a screenshot
+path), follow that arrangement; the mockup is the reference, you build the real, wired version. On a
+re-round, fix exactly the verifier's findings (and any obvious related breakage), not a wholesale rewrite.
 
 ### Stage 2: Self-check
 Using the commands in `docs/project-setup/verification.md`, bring the stack up if needed and drive the

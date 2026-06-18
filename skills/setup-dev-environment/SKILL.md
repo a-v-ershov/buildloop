@@ -50,6 +50,11 @@ settled in the spec; orphan setup that traces to nothing is a defect.
   (lock file gitignored) and/or the **per-run isolation** params — plus the **skeleton/stubs of the
   developer & test scripts** it specified (fast, intentionally-divergent local paths; full
   implementation is left to backlog tasks). See **`../_shared/build-pipeline/env-access.md`**.
+- **The design system** (UI projects only): for a UI project, once the scaffold is up, invoke
+  **`create-design-system`** (via the Skill tool) to produce the committed root **`DESIGN.md`** + a
+  `docs/project-setup/design-system.md` record — it proposes several candidate systems, renders each as
+  mockups (via `generate-mockups`) so the human picks one. You **conduct** this step; you do not
+  duplicate it. Self-skips for a no-UI project or when `design-decisions` says no system is needed.
 - **`docs/project-setup/setup-plan.md`** — the approvable plan (4 sections, each item traced).
 - **`docs/project-setup/setup-log.md`** — what was done / skipped (already present) / deferred to the
   human (secrets, accounts).
@@ -104,6 +109,7 @@ Read `docs/build-plan/.build-config.md` for `mode`. If absent (standalone run), 
 - [ ] Stage 3: Approve — interactive: show plan, get approval · autopilot: proceed (global/secrets/plugins still gate)
 - [ ] Stage 4: Execute — back up before overwrite, skip what's done, log each; repo-local auto, global/secrets/plugins confirmed
 - [ ] Stage 5: Smoke-test — run the one-command bring-up; prove the stack is green and drivable
+- [ ] Stage 5b: Design system (UI only) — invoke create-design-system → root DESIGN.md + design-system.md (self-skips for no-UI / no system)
 - [ ] Stage 6: Record — setup-log.md (done/skipped/manual TODO) + verification.md (run/drive/prove commands); hand off
 ```
 
@@ -164,6 +170,17 @@ queryable). Also prove the **gate has teeth**: `make check` runs green on the cl
 deliberately-introduced error makes it fail and the pre-commit hook blocks the commit (then revert the
 error). "No error in the logs" is not proof. If it fails, report what failed and offer to fix it
 (adjust the compose file, fix a port clash, re-seed) — the environment is not "done" until this is green.
+
+### Stage 5b: Design system (UI projects only)
+Now that the stack is up, settle the **concrete design system** before features are built. Read
+`docs/project-spec/design-decisions.research.md`: if this is a no-UI project or it recorded **Design
+system / Needed? = no**, **skip** this stage (note it in the setup log) and go to Stage 6. Otherwise, if
+there is no committed root `DESIGN.md` yet, **invoke `create-design-system`** (via the Skill tool) — it
+proposes several candidate `DESIGN.md` variants, renders each as mockups (via `generate-mockups`, now
+that there's a real stack to render in), lets the human pick, and writes the chosen **root `DESIGN.md`**
+plus `docs/project-setup/design-system.md`. **Conduct, don't duplicate** — let `create-design-system`
+run its own procedure; you just trigger it at the right moment and continue once it hands back. (If a
+`DESIGN.md` already exists, leave it; re-running is idempotent.)
 
 ### Stage 6: Record + handoff
 Write `docs/project-setup/setup-log.md` — three lists: **done**, **skipped (already present)**, and

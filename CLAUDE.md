@@ -46,7 +46,7 @@ skills/_shared/spec-pipeline/*.md        # shared methodology for the project-sp
 skills/_shared/build-pipeline/*.md       # shared methodology for the build phase (no SKILL.md)
 skills/_shared/release-pipeline/*.md     # shared methodology for the release phase (no SKILL.md)
 skills/_shared/agent-guide.md            # shared: the project CLAUDE.md "project map" block (cross-cutting, no SKILL.md)
-agents/*.md                              # named subagent roles (spec-reviewer, spec-researcher, implementer, verifier)
+agents/*.md                              # named subagent roles (spec-reviewer, spec-researcher, implementer, verifier, ui-prototyper)
 scripts/*.sh                             # hook helpers (e.g. guard-write-scope.sh, used by skill-scoped hooks)
 CLAUDE.md
 README.md
@@ -114,15 +114,19 @@ The pipelines spawn **fresh, role-specific subagents**. The recurring roles are 
   and add only a tool profile; the procedure stays single-sourced in the skill. `implementer` carries
   **no** persistent memory (the design is *fresh per task, discard after* — see `build-config.md`);
   cross-round continuity comes from `build-product` keeping the same agent alive within a task.
+- **`ui-prototyper`** — the mockup role `generate-mockups` spawns (one per variant, in parallel) to
+  build a single stub UI variant. Same thin-wrapper shape: it `skills:`-preloads `generate-mockups` and
+  does only its one assigned variant; it does not spawn further agents or record the human's choice.
 
 Two documented limits shape the above: a plugin agent **cannot** carry `hooks` / `mcpServers` /
 `permissionMode`, and an agent **cannot** `skills:`-preload a skill marked `disable-model-invocation`.
 
 **`disable-model-invocation: true`** is set on the side-effecting / outward-facing entry points so
 Claude does not auto-fire them from a cold chat: `commit`, `build-product`, `setup-dev-environment`,
-`propagate-changes`, `cut-release`, `release-product`. It is **not** set on `implement-feature` /
-`verify-feature` (they are preloaded by the build-loop agents) or on the read-only `audit-*` and the
-doc-only spec phases (those are legitimate intent-driven entry points).
+`create-design-system`, `propagate-changes`, `cut-release`, `release-product`. It is **not** set on
+`implement-feature` / `verify-feature` (they are preloaded by the build-loop agents), on
+`generate-mockups` (an on-demand, intent-driven entry point — "show me UI options"), or on the
+read-only `audit-*` and the doc-only spec phases (those are legitimate intent-driven entry points).
 
 **Write-scope guard hooks** turn a prose invariant into a harness guarantee, scoped to the one skill —
 the hook is declared in the skill's frontmatter (not plugin-wide, so it fires only while that skill is
@@ -130,6 +134,8 @@ active) and runs `scripts/guard-write-scope.sh` with an allow-list of path globs
 denial fed back to the agent) on any out-of-scope write:
 
 - `verify-feature` — may write **tests + `docs/build-plan/`** only, never the feature's code.
+- `generate-mockups` — may write **the scratch mockups tree + the task file + a `_mockups/` route + temp**
+  only, never the feature's code (it produces throwaway stub UI, not the implementation).
 - each `audit-*` — read-only re: product code: may write **`docs/**` + the backlog + temp** only.
 
 **`allowed-tools` is deliberately not used** — pre-approving tools would grant a skill standing access
@@ -260,7 +266,10 @@ Conventions for these skills:
   direction (design system, key screens, viewports, target platforms, media-heaviness, offline,
   accessibility) — design decisions only, never mockups or code (the cheapest mockup is real
   rendered code at implementation time) — and hands the technically-weighty ones to the next step
-  as quality-attribute scenario inputs. The technical layer is **two** steps: `design-architecture`
+  as quality-attribute scenario inputs. The **concrete** design system (real tokens) is produced
+  *downstream*, in the build phase, by `create-design-system` (the root `DESIGN.md`) — this phase only
+  decides the direction it systematizes (decide → systematize → render). The technical layer is
+  **two** steps: `design-architecture`
   (the system/production architecture — components + the concrete technologies that realize them,
   co-designed because the toolbox shapes the decomposition) then `design-dev-architecture` (the
   inner loop / developer experience — how to run the product locally with prod-parity stand-ins,
@@ -314,9 +323,11 @@ orchestration cost). Its shared machinery lives in `skills/_shared/build-pipelin
 |---|-------|------|----------------|
 | — | `build-product` | Orchestrator (conductor) | the backlog → the build loop |
 | 1 | `setup-dev-environment` | Platform / release engineer | dev-architecture.research.md → scaffolded repo + `docs/project-setup/` |
+| 1b | `create-design-system` *(UI projects)* | Design-system engineer | design-decisions → root `DESIGN.md` + `docs/project-setup/design-system.md` (invoked by setup once the scaffold is up) |
 | 2 | `plan-development` | Delivery tech lead | the spec → `docs/build-plan/` kanban backlog |
-| 3 | `implement-feature` | Implementer | one task → code |
+| 3 | `implement-feature` | Implementer | one task → code (UI built against `DESIGN.md`) |
 | 4 | `verify-feature` | Independent verifier (separate agent) | a task → adversarial tests + pass/fail verdict |
+| — | `generate-mockups` *(on demand)* | UI prototyper | a screen / candidate `DESIGN.md` → stub UI variants to compare → a chosen design-note on the task |
 | — | `propagate-changes` | Cross-cutting conductor | a changed spec doc → reconciled downstream docs + backlog |
 
 Conventions for these skills:
@@ -351,6 +362,22 @@ Conventions for these skills:
   never touches the implementation), and proves observable outcomes (a screenshot, a DB row, a log line, an
   asserted response) — never "it ran", and never "tests are green" alone. A fresh agent (not the implementer)
   is what actually moves a task to `done`; the accumulated tests are the regression net the quality gate runs.
+- **Design system + mockups make the design direction concrete (decide → systematize → render).**
+  `define-design-decisions` only **decides** the direction (no tokens, no pixels). In the build phase,
+  **`create-design-system`** **systematizes** it into a committed **root `DESIGN.md`** — Google's open,
+  tool-neutral format (Apache-2.0): YAML design tokens + prose rationale. It runs **after the scaffold is
+  up** (so candidates render in the real stack), normally invoked by `setup-dev-environment` for a UI
+  project (self-skips for no-UI / no-system), and produces **several** candidate systems — from an
+  imported `DESIGN.md`, an adopted UI kit (Material 3 / shadcn / Tailwind UI / Radix), or generated from
+  brand intent — rendering each so the human picks one. **`generate-mockups`** **renders** disposable
+  stub UI variants (no business logic) against `DESIGN.md` so options can be compared before building; it
+  is **on demand only** (never auto-run in the build loop), records the chosen variant as a design-note
+  on the task (which `implement-feature` then follows), and — like `verify-feature` — **never writes
+  product code** (a write-scope guard hook confines it to the scratch mockups tree + the task file).
+  Mockups are gitignored scratch under `docs/build-plan/mockups/`; rendering degrades gracefully
+  (project stack → standalone HTML → files-only). Shared method:
+  `skills/_shared/build-pipeline/mockup-method.md`. `create-design-system` reuses `generate-mockups`
+  (showcase mode) to render its candidates; the `ui-prototyper` agent builds one variant in parallel.
 - **Two run modes, like the spec phase.** `docs/build-plan/.build-config.md` holds `mode`
   (`interactive` | `autopilot`) and `max_verify_iterations`. Two things always stop regardless of mode:
   a `needs_human` escalation, and a critical/destructive change-propagation step.
@@ -363,8 +390,10 @@ Conventions for these skills:
   the files directly (no git/checksum staleness check). Method:
   `skills/_shared/build-pipeline/propagation-method.md`.
 - **Artifacts live under `docs/build-plan/` (backlog, board, plan summary) and `docs/project-setup/`
-  (setup log, verification contract) — both committed project documentation.** Skills are verbs; their
-  outputs are nouns.
+  (setup log, verification contract, design-system record) — both committed project documentation, plus
+  the **root `DESIGN.md`** (the committed, tool-neutral design system).** Skills are verbs; their
+  outputs are nouns. The one gitignored build-phase tree is `docs/build-plan/mockups/` (throwaway
+  mockups; only the chosen screenshot is kept) — the analog of the spec phase's transient `*.review.md`.
 
 ## Development-process skill pipeline (release phase)
 
@@ -433,8 +462,8 @@ Conventions for these skills:
 
 Both pipelines write `docs/`; an agent later working in the project needs to find its way around them.
 So the target project's **root `CLAUDE.md`** carries a small, marker-delimited **project documentation
-map** — a navigational index of `docs/project-spec/`, `docs/build-plan/`, and `docs/project-setup/`
-plus the order to read them in before changing code. It is a **map, not a copy**: it points at the
+map** — a navigational index of `docs/project-spec/`, `docs/build-plan/`, `docs/project-setup/`, and
+the root `DESIGN.md` (UI projects) plus the order to read them in before changing code. It is a **map, not a copy**: it points at the
 artifacts, never restates them. This is a deliberately separate concern from the *built-in* `/init`
 (which writes a `CLAUDE.md` from analysing existing code) — the map is spec/backlog-aware, not
 code-derived.

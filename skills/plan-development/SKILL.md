@@ -27,8 +27,10 @@ and no conflict tracking: blockers, and the build loop's one-at-a-time disciplin
 
 - **Reads:** `product-requirements.research.md` (features + acceptance criteria), `user-flows.research.md`,
   `architecture.research.md`, `dev-architecture.research.md`, and `docs/project-setup/setup-log.md` if
-  present. For an existing project, also `docs/project-spec/codebase-map.research.md` (the as-is code
-  the spec was reconstructed from — delta mode diffs the target spec against it).
+  present. The root `DESIGN.md` + `docs/project-setup/design-system.md` if present (the design system UI
+  feature tasks build against — note it in their `## Description`; don't create mockup tasks, mockups are
+  on-demand via `generate-mockups`). For an existing project, also `docs/project-spec/codebase-map.research.md`
+  (the as-is code the spec was reconstructed from — delta mode diffs the target spec against it).
 - **Writes:** `docs/build-plan/tasks/<id>-<slug>.md` (one per task), `docs/build-plan/board.md`
   (derived), `docs/build-plan/plan.summary.md` (human). Schema + lifecycle:
   **`../_shared/build-pipeline/backlog-format.md`**. Derivation + amend rules:

@@ -17,6 +17,10 @@ the blockers a task carries are the graph.
   scaffolded by `setup-dev-environment`; the full implementation is backlog work).
 - `docs/project-setup/setup-log.md` (if present) — what the environment already has, so `setup` tasks
   aren't re-created.
+- The root `DESIGN.md` + `docs/project-setup/design-system.md` (if present) — the committed design
+  system UI feature tasks build against. Reference it in a UI task's `## Description` so the implementer
+  applies it; do **not** emit "mockup" tasks — mockups are on-demand (`generate-mockups`), never backlog
+  work.
 - `docs/project-spec/codebase-map.research.md` (existing projects only) — the as-is facts the spec was
   reconstructed from; in **delta mode** (below) the backlog is the diff of the TARGET spec against this.
 
@@ -141,6 +145,10 @@ delta):
 - **Quality gate.** If the map shows no enforced gate (lint/format/type-check/test behind one
   `make check` + hooks — see `quality-gate.md`), emit a `setup` task to stand it up over the existing
   code, an early blocker for the rest.
+- **Design-system reskin.** If `create-design-system` adopt mode logged a **token/reskin drift** in
+  `docs/project-setup/design-system.md` (the realized system the user wants evolved — a `change`), emit
+  a `rework` task `traces_to` the design system: apply the new `DESIGN.md` tokens to the affected
+  surfaces. (No drift → the realized system is kept as-is, no task.)
 
 Blockers are derived as in create mode, with one shortcut: an adopted-`done` task is a
 **pre-satisfied** blocker, so a TARGET-only feature depending on an already-built entity is

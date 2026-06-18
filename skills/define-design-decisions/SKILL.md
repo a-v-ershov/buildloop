@@ -16,6 +16,14 @@ This phase **decides direction**; it does not render pixels. Its job is to settl
 choices that, if gotten wrong, would force a costly rebuild — so `design-architecture` can turn
 them into quality-attribute scenarios before the stack is locked.
 
+> **Downstream — where the direction becomes concrete.** You are the **decide** rung of the ladder
+> *decide → systematize → render*. You produce no tokens or design system here. Later, in the build
+> phase (after the project is scaffolded), **`create-design-system`** makes this direction concrete — a
+> committed root `DESIGN.md` (real tokens + rules) — and **`generate-mockups`** renders disposable UI
+> options against it. Leave the concrete system to them; your output is the direction they systematize.
+> (This phase's hard gate still hands off to `/design-architecture` — the technical layer is next in the
+> spec; the design system is produced downstream, at setup.)
+
 Scope discipline (read carefully):
 
 - **Decisions, not pixels.** You decide direction (system, screens, viewports, platforms, media,

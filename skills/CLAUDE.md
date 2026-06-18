@@ -60,13 +60,17 @@ Config in `docs/build-plan/.build-config.md`.
 | # | Skill | Role |
 |---|-------|------|
 | 1 | `setup-dev-environment` | Execute the documented inner loop; stand up the enforced quality gate (`make check` + hooks) |
+| 1b | `create-design-system` *(UI projects)* | After the scaffold is up, make the design direction concrete: a root `DESIGN.md` (Google's tool-neutral tokens+prose). Proposes several candidates, renders each via `generate-mockups`, commits the chosen one. Invoked by setup; self-skips for no-UI |
 | 2 | `plan-development` | Turn the spec into a kanban backlog under `docs/build-plan/tasks/` (one file per task) |
-| 3 | `implement-feature` | Build one task into code (fresh per-task agent) |
+| 3 | `implement-feature` | Build one task into code (fresh per-task agent), UI built against `DESIGN.md` |
 | 4 | `verify-feature` | A **separate, unbiased** agent: authors adversarial tests, proves observable outcomes, pass/fail |
 
 `build-product` picks the lowest-id `ready` task (status `todo` with all `blocked_by` `done`), loops
 implement ↔ verify (bounded by `max_verify_iterations`; at the cap → `needs_human`), and on a green
 quality gate sets it `done` and makes a checkpoint commit. Resumable — the backlog is the source of truth.
+The design ladder is **decide → systematize → render**: `define-design-decisions` (spec) decides the
+direction, `create-design-system` (build) systematizes it into `DESIGN.md`, and `generate-mockups`
+(on demand) renders disposable stub UI variants against it to compare before building.
 
 ### 3. Release pipeline — working software → cut release (audits, then ship)
 
@@ -93,6 +97,10 @@ the one outward-facing step and always confirms.
 ## Standalone skills
 
 - **`commit`** — analyze uncommitted changes, group by logic, create well-structured commits (English messages).
+- **`generate-mockups`** — on demand, generate several stub UI variants (no logic) for a screen and
+  render them against the `DESIGN.md` so you can compare and choose; records the chosen one as a
+  design-note on the task. Also used by `create-design-system` (showcase mode) to render its candidates.
+  Never writes product code (write-scope guard); never auto-run in the build loop.
 - **`propagate-changes`** — after an upstream spec doc is edited, reconcile downstream docs + backlog
   forward, surgically; runs automatically, pauses only on critical/destructive changes. Never writes code.
 - **`gather-context`** is also a reusable grill: any phase can call it for a fork blocked on context
@@ -102,8 +110,13 @@ the one outward-facing step and always confirms.
 
 - `docs/project-spec/` — spec research docs, summaries, `adr/`, `.spec-config.md` (committed; transient
   `*.review.md` is deleted after merge and gitignored).
-- `docs/build-plan/` — backlog (`tasks/`), `board.md`, `.build-config.md` (committed).
-- `docs/project-setup/` — setup log + the verification contract `verify-feature` reads (committed).
+- `docs/build-plan/` — backlog (`tasks/`), `board.md`, `.build-config.md` (committed); plus
+  `mockups/` — throwaway stub UI variants from `generate-mockups` (gitignored; only the chosen
+  screenshot is kept).
+- `docs/project-setup/` — setup log + the verification contract `verify-feature` reads + the
+  `design-system.md` record (committed).
+- **Root `DESIGN.md`** *(UI projects)* — the committed, tool-neutral design system (tokens + rules)
+  `create-design-system` writes and `implement-feature` / `generate-mockups` read.
 - `docs/release/` — per-audit findings docs + `release-summary.md` + `.release-config.md` (committed); the
   audit trail of why a release was, or wasn't, cut.
 - The project's **root `CLAUDE.md`** carries a marker-delimited *project documentation map* indexing the
@@ -114,7 +127,7 @@ the one outward-facing step and always confirms.
 - Skills are **verbs**; their outputs are **nouns** (`validate-idea` → `idea-validation`).
 - Orchestrators **conduct, they do not duplicate** — they invoke focused sub-skills via the Skill tool
   and spawn the named **agents** (`agents/`: `spec-reviewer`, `spec-researcher`, `implementer`,
-  `verifier`) for the pipelines' subagent roles.
+  `verifier`, `ui-prototyper`) for the pipelines' subagent roles.
 - Shared methodology lives in `_shared/` (no `SKILL.md`): `spec-pipeline/`, `build-pipeline/`, and
   `release-pipeline/` hold the elicitation, research, review, output-format, backlog, quality-gate,
   propagation, audit, severity, and report methods; `agent-guide.md` defines the project-map block. Read

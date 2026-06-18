@@ -94,7 +94,10 @@ defines them):
 3. **Domain model (as built)** — entities inferred from ORM models / schema migrations / type
    definitions / table DDL; their fields and relations; the **de-facto glossary** the code uses.
 4. **Surfaces & flows (as built)** — HTTP routes / RPC handlers / CLI commands / UI screens &
-   navigation; auth touchpoints; the de-facto user flows reconstructed from routing + UI tree.
+   navigation; auth touchpoints; the de-facto user flows reconstructed from routing + UI tree. For a UI
+   project, also chart the **realized design system / tokens** — a Tailwind `theme.extend`, CSS custom
+   properties / design-token files, a shadcn `components.json` + its CSS variables, a Material theme, a
+   Storybook — so `create-design-system`'s adopt mode can reverse-engineer the as-built `DESIGN.md`.
 5. **Tests & quality gate (as present)** — test frameworks + dirs, a rough coverage signal, existing
    lint / format / type-check config, CI config, pre-commit hooks.
 6. **Build / run / CI / env** — build tooling, `Dockerfile` / compose, Makefile/justfile targets,

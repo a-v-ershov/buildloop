@@ -43,8 +43,8 @@ The section is delimited by HTML-comment markers and is the ONLY thing these wri
 
 ## What to map (scan, mark present vs planned)
 
-Scan `docs/project-spec/`, `docs/build-plan/`, `docs/project-setup/`, and `docs/release/`. Emit one
-row per known artifact, pointing at it. If a file is not there yet (e.g. an early seed before the spec exists),
+Scan `docs/project-spec/`, `docs/build-plan/`, `docs/project-setup/`, `docs/release/`, and the **root
+`DESIGN.md`** (UI projects). Emit one row per known artifact, pointing at it. If a file is not there yet (e.g. an early seed before the spec exists),
 still list it but mark it **planned** — so the map describes the intended shape from day one. Never
 invent artifacts the pipeline does not produce.
 
@@ -62,6 +62,8 @@ Known artifacts (the `.research.md` files are the depth; each has a short `.summ
 - `docs/build-plan/board.md` (+ `tasks/*.md`) — the backlog (what to build next).
 - `docs/project-setup/verification.md` — run / drive / prove commands.
 - `docs/project-setup/setup-log.md` — what the env provides + manual TODOs.
+- `DESIGN.md` *(repo root, UI projects)* — the committed design system (tokens + rules) UI code is built against.
+- `docs/project-setup/design-system.md` — *(UI projects)* how the design system was chosen (the *why* behind `DESIGN.md`).
 - `docs/release/release-summary.md` — release readiness + what shipped (the verdict).
 - `docs/release/*-audit.md` — per-audit findings (security, performance, product, code-health, accessibility) — the audit trail.
 
@@ -84,6 +86,7 @@ absorb) any place where the code and the docs disagree; propagate real changes w
 2. The task you're on under `docs/build-plan/` — its `## Description`, acceptance criteria, `traces_to`.
 3. The spec sections it traces to (the rows below).
 4. `docs/project-setup/verification.md` — how to run it and prove the change works.
+5. For UI work, the root `DESIGN.md` — the design system (tokens + rules) to build against.
 
 **Map** — Status: `✓` present · `◦` planned
 
@@ -97,6 +100,7 @@ absorb) any place where the code and the docs disagree; propagate real changes w
 | ✓ | `docs/project-spec/dev-architecture.research.md` | Local run, testing, AI tooling |
 | ◦ | `docs/build-plan/board.md` (+ `tasks/*.md`) | Backlog — what to build next |
 | ◦ | `docs/project-setup/verification.md` | Run / drive / prove commands |
+| ◦ | `DESIGN.md` (root) | Design system — tokens + rules UI is built against *(UI projects)* |
 | ◦ | `docs/release/release-summary.md` | Release readiness + what shipped |
 | ◦ | `docs/release/*-audit.md` | Per-audit findings (the audit trail) |
 <!-- builder-skills:project-map:end -->
