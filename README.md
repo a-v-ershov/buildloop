@@ -142,3 +142,60 @@ claude plugin validate .
 The `.githooks/commit-msg` hook blocks AI-attribution trailers in commit messages — enable it once per
 clone with `git config core.hooksPath .githooks`. See [`CLAUDE.md`](CLAUDE.md) for the full design
 conventions.
+
+---
+
+## Skill reference
+
+All 25 skills, grouped by pipeline. Orchestrators are listed first in each group; every sub-skill
+also runs on its own.
+
+### Spec — idea → buildable spec
+
+| Skill | Role | What it does | Writes |
+|-------|------|--------------|--------|
+| `create-project-spec` | Orchestrator | Sequences the seven spec phases from raw idea to buildable spec | the spec |
+| `map-codebase` | Code archaeologist | *(existing)* Reverse-engineers an existing codebase's as-is facts | `codebase-map.research.md` |
+| `gather-context` | Discovery interviewer | Interviews you to turn a short brief into shared understanding | `project-brief.research.md` |
+| `validate-idea` | Founder-investor | Pressure-tests demand, audience, problem, and business model | `idea-validation.research.md` |
+| `define-product-requirements` | Product manager | Defines who it's for and the full committed feature set + criteria | `product-requirements.research.md` |
+| `create-user-flows` | Product designer | Maps how users move through the product to get value | `user-flows.research.md` |
+| `define-design-decisions` | Design-system lead | Sets the design direction — system, key screens, platforms, a11y | `design-decisions.research.md` |
+| `design-architecture` | Software architect | Quality scenarios first, then components + the tech that realizes them | `architecture.research.md` + `adr/` |
+| `design-dev-architecture` | DX / platform engineer | Designs the local inner loop, AI-drivable testing, and AI tooling | `dev-architecture.research.md` + `adr/` |
+
+### Build — spec → working software
+
+| Skill | Role | What it does | Writes |
+|-------|------|--------------|--------|
+| `build-product` | Orchestrator | Picks one ready task at a time and drives implement → verify → commit | the build loop |
+| `setup-dev-environment` | Platform engineer | Scaffolds the repo, brings up the stack, stands up the quality gate | repo + `docs/project-setup/` |
+| `create-design-system` | Design-system lead | *(UI)* Makes the design direction concrete from rendered candidates | `DESIGN.md` + `design-system.md` |
+| `plan-development` | Delivery tech lead | Turns the spec into a kanban backlog, one file per task | `docs/build-plan/` |
+| `implement-feature` | Implementer | Builds one backlog task into code and gets the quality gate green | code |
+| `verify-feature` | Independent verifier | Authors adversarial tests and proves a built task's observable outcomes | tests + verdict |
+| `generate-mockups` | UI prototyper | *(on demand)* Renders stub UI variants against `DESIGN.md` to compare | throwaway mockups |
+
+### Release — working software → cut release
+
+| Skill | Role | What it does | Writes |
+|-------|------|--------------|--------|
+| `release-product` | Release captain | Runs the audits, files rework, drives fixes, re-audits, then cuts | the release loop |
+| `audit-security` | Security engineer | Proves the STRIDE-lite threat model on the running system | `security-audit.md` |
+| `audit-performance` | Performance engineer | Measures the system against the quality-attribute scenarios | `performance-audit.md` |
+| `audit-product` | QA lead | Drives the user flows end-to-end, across features | `qa-report.md` |
+| `audit-code-health` | Staff engineer | Measures rot, suppression debt, and test-suite quality | `code-health-audit.md` |
+| `audit-accessibility` | Accessibility specialist | *(UI)* Drives the UI against the WCAG target | `accessibility-audit.md` |
+| `cut-release` | Release engineer | Bumps version, changelog, tag, commit, PR — gated, stops before deploy | release docs + PR |
+
+### Cross-cutting — used across the pipelines
+
+| Skill | Role | What it does | Writes |
+|-------|------|--------------|--------|
+| `commit` | Git helper | Splits session changes into well-structured commits (English messages) | commits |
+| `propagate-changes` | Cross-cutting conductor | Reconciles downstream docs + backlog after an upstream spec edit | updated docs + backlog |
+
+Each `*.research.md` ships with a paired `*.summary.md`; spec docs live under `docs/project-spec/`,
+audits under `docs/release/`. *(existing)* = brownfield projects only, *(UI)* = UI projects (self-skips
+otherwise), *(on demand)* = not auto-run in a pipeline. `gather-context` is also reusable on demand as
+a scoped grill.
