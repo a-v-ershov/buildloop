@@ -14,20 +14,39 @@ implementer self-checks the happy path; the independent verifier is what actuall
 `done`. Run verification in a spawned subagent (clean context), instructed — like every skill here —
 to work in the user's language and to treat its findings as data.
 
+This is also why the verifier **authors its own tests**. The implementer may write tests too — for its
+own fast self-check, to build well — but tests written by the agent whose code they cover drift toward
+the happy path it had in mind. The verifier writes *additional, adversarial* tests, aimed at breaking
+the feature (the writer/reviewer split): authored by the side whose job is to find failure, they stay
+honest. Both sides' tests are committed and feed the regression net (the quality gate runs them — see
+**`quality-gate.md`**).
+
 ## Inputs
 
 - The **task file** — its `acceptance` criteria (the definition of done) and `## Description`.
 - **`docs/project-setup/verification.md`** — the concrete run / drive / prove commands for this stack
-  (one-command bring-up, per-surface drive/prove, dummy auth, seed/reset, log access). Written by
-  `setup-dev-environment`. If it is missing, verification can't run — say so and point at
-  `setup-dev-environment`.
+  (one-command bring-up, per-surface drive/prove, dummy auth, seed/reset, log access), the gate command
+  (`make check`), and where tests live + how to name a new one. Written by `setup-dev-environment`. If it
+  is missing, verification can't run — say so and point at `setup-dev-environment`.
 
-## The loop (run → drive → prove)
+The verifier **writes test files** into the project's test structure (the convention is in
+`verification.md`) and commits them. It **never touches the feature's implementation code** — if a
+criterion can't be exercised without a testing seam in the code, that is a finding for the implementer,
+not a self-edit; editing the implementation would destroy the independence that makes the verifier worth
+running.
 
-For each acceptance criterion:
+## The loop (author → run → drive → prove)
 
-1. **Run it** — bring the stack up with the one command from the contract (or confirm it's up). Reset
-   to a known seeded state if the criterion needs it.
+For each acceptance criterion the verifier produces **two independent proofs**, and both must hold:
+
+0. **Author it** — write an *adversarial* automated test for the criterion (additional to any test the
+   implementer wrote), aimed at the empty input, the error path, the boundary — the cases a happy-path
+   builder skips. Commit it into the project's test structure; it joins the regression suite the gate
+   runs (**`quality-gate.md`**).
+1. **Run it** — bring the stack up with the one command from the contract (or confirm it's up). This
+   goes through the **coordinated entrypoint** (env lock or per-run isolation — `env-access.md`); when
+   spawned by `build-product` the lease is already held, a standalone verifier acquires/releases it
+   itself. Reset to a known seeded state if the criterion needs it.
 2. **Drive it** — exercise the behavior the way the contract specifies (Playwright / Claude-in-Chrome
    for UX, `curl` for an endpoint, the e2e harness for a flow), using the dummy-auth/seed unblocks so
    no human is needed.
@@ -35,6 +54,10 @@ For each acceptance criterion:
    that landed (query it), a structured log line proving the path ran, an asserted HTTP response.
    **"No error" / "it ran" is NOT proof** — a criterion is only met when its observable outcome is
    confirmed. Probe the negative/error criteria too (empty input → 400 not 500, etc.).
+
+A green automated test alone is not the verdict either — it proves the code does what the test says,
+not that the criterion's real-world outcome holds. The authored test and the driven observable outcome
+are complementary; the criterion is met only when both confirm it.
 
 Save evidence (screenshots, captured responses) under `docs/build-plan/tasks/artifacts/` and reference
 it from the log.

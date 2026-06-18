@@ -222,10 +222,13 @@ Conventions for these skills:
   it skipped it and why.
 - **Dev architecture is the inner loop, AI-first.** `design-dev-architecture` takes the chosen
   stack and designs three things together: a **prod-parity local run** (local stand-ins whose APIs
-  mirror the production services, one-command bring-up, seed data — every divergence named as a
-  risk), **AI-drivable testing** (test levels + an e2e harness an agent can run and verify with no
-  manual step), and **AI tooling tuned to the stack** (Claude Code config, MCP servers, plugins/
-  skills, other agents). Minimal, proven infra — never reproduce production scale/HA locally. It
+  mirror the production services, one-command bring-up, seed data — every divergence named as a risk —
+  plus an **environment-access model**, an advisory lock and/or per-run isolation, so concurrent actors
+  never clobber the single shared env), **AI-drivable testing** (test levels + **purpose-built
+  developer/test scripts** that deliberately diverge from prod for fast iteration — distinct from the
+  parity stand-ins, the divergence an intentional speed tradeoff — + an e2e harness an agent can run and
+  verify with no manual step), and **AI tooling tuned to the stack** (Claude Code config, MCP servers,
+  plugins/skills, other agents). Minimal, proven infra — never reproduce production scale/HA locally. It
   continues the `adr/` numbering from `design-architecture` and never re-opens stack choices.
 
 ## Development-process skill pipeline (build phase)
@@ -243,7 +246,7 @@ orchestration cost). Its shared machinery lives in `skills/_shared/build-pipelin
 | 1 | `setup-dev-environment` | Platform / release engineer | dev-architecture.research.md → scaffolded repo + `docs/project-setup/` |
 | 2 | `plan-development` | Delivery tech lead | the spec → `docs/build-plan/` kanban backlog |
 | 3 | `implement-feature` | Implementer | one task → code |
-| 4 | `verify-feature` | Independent verifier (separate agent) | a task → pass/fail verdict |
+| 4 | `verify-feature` | Independent verifier (separate agent) | a task → adversarial tests + pass/fail verdict |
 | — | `propagate-changes` | Cross-cutting conductor | a changed spec doc → reconciled downstream docs + backlog |
 
 Conventions for these skills:
@@ -252,23 +255,32 @@ Conventions for these skills:
   `design-dev-architecture` stopped at — it executes the documented inner loop (installs, compose, seed,
   one-command bring-up). It plans everything but auto-executes only repo-local scaffolding; global
   installs, API keys, and plugin installs run only with explicit confirmation (the `careful` pattern),
-  and it is idempotent (detect-state-first, back up before overwrite). It ends with a **smoke-test**
-  (the stack actually comes up) rather than the spec phase's adversarial reviewer.
+  and it is idempotent (detect-state-first, back up before overwrite). It also stands up the **enforced
+  quality gate** (linter + type-checker + tests behind one `make check`, zero-tolerance, a pre-commit
+  hook that blocks the commit on red, a Stop hook that feeds failures back —
+  `skills/_shared/build-pipeline/quality-gate.md`). It also bakes in the **environment-access mechanism**
+  (lock and/or per-run isolation — `skills/_shared/build-pipeline/env-access.md`) and scaffolds the
+  **developer/test-script skeletons** the spec named (built out later as backlog tasks). It ends with a
+  **smoke-test** (the stack comes up *and* the gate has teeth) rather than the spec phase's adversarial reviewer.
 - **The backlog is a kanban board with blockers — own format, not a library.** One markdown file per
   task under `docs/build-plan/tasks/` (status in frontmatter; each agent edits only its own file). A
   task's `blocked_by` list *is* the dependency graph, implicitly; `ready` = `todo` with all blockers
   `done`. `board.md` is a derived view, regenerated, never hand-edited. Format + lifecycle:
   `skills/_shared/build-pipeline/backlog-format.md`.
 - **`build-product` conducts; it does not duplicate.** It picks one `ready` task at a time (lowest id),
-  invokes `implement-feature`, then spawns `verify-feature` as a separate fresh agent, loops them
-  (bounded by `max_verify_iterations`, default 4 — at the cap the task goes `needs_human`), and on pass
-  sets the task `done` and makes a checkpoint commit (via the `commit` skill, carrying the task id).
-  Resumable — the backlog is the source of truth.
-- **Verification runs in a separate, unbiased agent.** `verify-feature` is generic — it reads the
-  project-specific run/drive/prove commands from `docs/project-setup/verification.md` (written by
-  `setup-dev-environment`) and the task's own acceptance criteria, and proves observable outcomes
-  (a screenshot, a DB row, a log line, an asserted response) — never "it ran". A fresh agent (not the
-  implementer) is what actually moves a task to `done`.
+  **spawns `implement-feature` as a fresh subagent** (fresh per task, kept across that task's rounds so
+  it remembers what it tried), then spawns `verify-feature` as a separate agent, loops them (bounded by
+  `max_verify_iterations`, default 4 — at the cap the task goes `needs_human`), and on pass — **only once
+  the full quality gate is green** — sets the task `done` and makes a checkpoint commit (via the `commit`
+  skill, carrying the task id). Resumable — the backlog is the source of truth.
+- **Verification runs in a separate, unbiased agent that authors the adversarial tests.** `verify-feature`
+  is generic — it reads the project-specific run/drive/prove commands from `docs/project-setup/verification.md`
+  (written by `setup-dev-environment`) and the task's own acceptance criteria, **authors adversarial
+  automated tests for those criteria** (committed — the implementer may also write its own tests for a fast
+  self-check, but the adversarial layer comes from the side that didn't write the code, and the verifier
+  never touches the implementation), and proves observable outcomes (a screenshot, a DB row, a log line, an
+  asserted response) — never "it ran", and never "tests are green" alone. A fresh agent (not the implementer)
+  is what actually moves a task to `done`; the accumulated tests are the regression net the quality gate runs.
 - **Two run modes, like the spec phase.** `docs/build-plan/.build-config.md` holds `mode`
   (`interactive` | `autopilot`) and `max_verify_iterations`. Two things always stop regardless of mode:
   a `needs_human` escalation, and a critical/destructive change-propagation step.

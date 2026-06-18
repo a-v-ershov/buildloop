@@ -13,7 +13,8 @@ the blockers a task carries are the graph.
   a feature task's criteria and surface cross-feature ordering.
 - `docs/project-spec/architecture.research.md` + `dev-architecture.research.md` — the components and
   the local stack, to size tasks and seed `setup` tasks and dependencies (e.g. auth before features
-  that need a logged-in user).
+  that need a logged-in user); also the **developer/test scripts** to build out (their skeleton is
+  scaffolded by `setup-dev-environment`; the full implementation is backlog work).
 - `docs/project-setup/setup-log.md` (if present) — what the environment already has, so `setup` tasks
   aren't re-created.
 
@@ -34,6 +35,11 @@ invented here.
    build, the relevant spec sections, constraints, design notes).
 5. **Acceptance.** Copy/derive the behavioral criteria the task must satisfy — the definition of done
    `verify-feature` proves against. A feature task with no acceptance criteria is incomplete.
+6. **Developer/test-script tasks.** `dev-architecture.research.md` specifies purpose-built developer &
+   test scripts (fast subset/stage runners, fixture/sample generators, intermediate inspectors); their
+   skeletons are scaffolded by `setup-dev-environment`, so add tasks to **build them out fully** (type
+   `setup` or `feature`, `traces_to` the dev-architecture dev-scripts section). They widen the agent's
+   verification loop, so blockers usually put the foundational ones early.
 
 ## Setting blockers (the implicit graph)
 

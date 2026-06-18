@@ -39,6 +39,16 @@ settled in the spec; orphan setup that traces to nothing is a defect.
   **project documentation map** — write/refresh that block per **`../_shared/agent-guide.md`** so an
   agent can navigate `docs/project-spec/`, `docs/build-plan/`, and `docs/project-setup/`. (An earlier
   `create-project-spec` run may already have seeded the map block; refresh it in place, idempotently.)
+- **The quality gate** (repo-local): linter + formatter + type-checker configs (zero-tolerance), a
+  `make check` target, a **pre-commit hook** that blocks the commit on red, and a Claude Code
+  **Stop / PostToolUse hook** in `.claude/settings.json` that runs the gate and feeds failures back.
+  Defined once in **`../_shared/build-pipeline/quality-gate.md`**; it executes the test levels + hooks
+  `design-dev-architecture` already specified — it does not re-pick tools.
+- **Environment access + developer scripts** (repo-local): whichever env-access mechanism
+  `dev-architecture` chose — the **advisory-lock helper** baked into the bring-up/teardown commands
+  (lock file gitignored) and/or the **per-run isolation** params — plus the **skeleton/stubs of the
+  developer & test scripts** it specified (fast, intentionally-divergent local paths; full
+  implementation is left to backlog tasks). See **`../_shared/build-pipeline/env-access.md`**.
 - **`docs/project-setup/setup-plan.md`** — the approvable plan (4 sections, each item traced).
 - **`docs/project-setup/setup-log.md`** — what was done / skipped (already present) / deferred to the
   human (secrets, accounts).
@@ -75,6 +85,12 @@ Read `docs/build-plan/.build-config.md` for `mode`. If absent (standalone run), 
 - **Trace every action to the spec.** Each plan item names the component/tool and ADR it comes from.
 - **Smoke-test, not paper.** The environment is "done" only when the one-command bring-up is **green**
   and an agent can drive a basic flow against it — not when the files merely exist.
+- **The gate is enforced, not advisory.** Stand up the quality gate so a red gate **blocks the commit**
+  (pre-commit hook) and feeds failures back to the agent (Stop hook). See
+  **`../_shared/build-pipeline/quality-gate.md`**.
+- **Coordinate the shared env.** Bake the env-access mechanism into the bring-up command (acquire the
+  lock on `make dev`, release on `make down`, lease + stale-reclaim) and/or set up per-run isolation —
+  per **`../_shared/build-pipeline/env-access.md`**; gitignore the lock file.
 - **Minimal, proven infra.** Bring up exactly what the spec says; never reproduce production scale/HA
   locally or add tooling the spec didn't choose.
 
@@ -94,8 +110,8 @@ Read `docs/build-plan/.build-config.md` for `mode`. If absent (standalone run), 
 Read `docs/project-spec/dev-architecture.research.md` (the inner-loop design: local-run topology,
 verification matrix, AI tooling) and `docs/project-spec/architecture.research.md` (the stack) plus
 `docs/project-spec/adr/*`. List: the components and their local stand-ins, the one-command bring-up,
-the seed strategy, the test/verification matrix, and the AI tooling (MCP servers, plugins, CLAUDE.md
-content). If `dev-architecture.research.md` is missing, tell the user and offer to run
+the seed strategy, the test/verification matrix, the **environment-access model and the developer/test
+scripts**, and the AI tooling (MCP servers, plugins, CLAUDE.md content). If `dev-architecture.research.md` is missing, tell the user and offer to run
 `/design-dev-architecture` first. Read the mode.
 
 ### Stage 1: Detect state (read-only)
@@ -114,9 +130,15 @@ reversibility · idempotency note · already-present?**:
 - **(B) Repo scaffolding** — `.gitignore`, project `CLAUDE.md` (stack notes + commands **plus** the
   marker-delimited project documentation map per **`../_shared/agent-guide.md`** — touch only that
   block, leave the rest), directory skeleton, `docker-compose.yml`, seed scripts, the one-command
-  entrypoint, app config. *Auto-applicable (repo-local).*
-- **(C) AI tooling** — `.claude/settings.json`, MCP server config, recommended plugins/skills from the
-  dev-architecture tooling section. *Config files auto; plugin/MCP installs gated.*
+  entrypoint, app config, the **quality gate** (linter/formatter/type-checker configs with
+  zero-tolerance, a `make check` target, a pre-commit hook that blocks the commit on red —
+  **`../_shared/build-pipeline/quality-gate.md`**), the **env-access helper** (lock baked into
+  bring-up + gitignored lock file, and/or per-run isolation params —
+  **`../_shared/build-pipeline/env-access.md`**), and the **skeleton of the developer/test scripts**
+  `dev-architecture` specified. *Auto-applicable (repo-local).*
+- **(C) AI tooling** — `.claude/settings.json` (incl. the **Stop / PostToolUse hook** that runs the
+  gate and feeds failures back), MCP server config, recommended plugins/skills from the dev-architecture
+  tooling section. *Config files auto; plugin/MCP installs gated.*
 - **(D) Manual-only** — real secrets/API keys, cloud accounts, licenses. *Cannot be automated — listed
   for the human.*
 
@@ -137,7 +159,9 @@ go. If a step fails, stop, report the exact error, and offer a fix — don't pow
 Run the one-command bring-up from the spec. Prove it is actually **green**: the stack starts, the app
 is reachable at the documented URL/port, seed data is present, and an agent can drive one basic flow
 and observe a real outcome (a page renders / a health endpoint returns 200 / a seeded row is
-queryable). "No error in the logs" is not proof. If it fails, report what failed and offer to fix it
+queryable). Also prove the **gate has teeth**: `make check` runs green on the clean tree, and a
+deliberately-introduced error makes it fail and the pre-commit hook blocks the commit (then revert the
+error). "No error in the logs" is not proof. If it fails, report what failed and offer to fix it
 (adjust the compose file, fix a port clash, re-seed) — the environment is not "done" until this is green.
 
 ### Stage 6: Record + handoff
@@ -162,3 +186,8 @@ outcome; the dummy-auth token and seed/reset commands; where logs are). This is 
 4. The environment is "done" only when the one-command bring-up is smoke-tested green and drivable.
 5. Surface the irreducible manual steps honestly in setup-log.md; never pretend they're handled.
 6. Always write `verification.md` — the build phase depends on it; an environment without it is unfinished.
+7. Stand up the **enforced quality gate** — a red `make check` blocks the commit (pre-commit hook), and
+   a Stop hook feeds failures back. The gate executes the spec's test levels + hooks; it doesn't re-pick tools.
+8. Bake the **env-access mechanism** into the bring-up command (lock with lease + stale-reclaim, and/or
+   per-run isolation; gitignore the lock file) and scaffold the **developer/test-script skeletons** —
+   full implementation is backlog work.

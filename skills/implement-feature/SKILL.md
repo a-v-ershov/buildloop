@@ -1,6 +1,6 @@
 ---
 name: implement-feature
-description: "Build one backlog task's feature in the working tree. Use as the implementation stage of the build loop — normally driven by build-product, or standalone on a task id. Reads the task's ## Description and acceptance criteria, builds the feature on the current branch following the project's CLAUDE.md conventions and the existing codebase patterns, then self-verifies the happy path against the verification contract (docs/project-setup/verification.md) to catch obvious breakage before the independent verifier runs. Appends a ## Log note of what was done and moves the task to in_progress; it does NOT run the separate verifier and does NOT commit — build-product orchestrates verify-feature and the checkpoint commit. On a re-round after a failed verification, it reads the verifier's findings from the task log and fixes them."
+description: "Build one backlog task's feature in the working tree. Use as the implementation stage of the build loop — normally spawned fresh per task by build-product, or standalone on a task id. Reads the task's ## Description and acceptance criteria, builds the feature on the current branch following the project's CLAUDE.md conventions and the existing codebase patterns, then self-verifies the happy path against the verification contract (docs/project-setup/verification.md) — optionally writing its own tests and running the environment for a fast inner loop — and gets the quality gate (make check) green before handing off, to catch obvious breakage before the independent verifier runs. Appends a ## Log note of what was done and moves the task to in_progress; it does NOT run the separate verifier and does NOT commit — build-product orchestrates verify-feature and the checkpoint commit. On a re-round after a failed verification, it reads the verifier's findings and runs the verifier's committed tests to reproduce them, then fixes them."
 argument-hint: "[task-id]"
 ---
 
@@ -11,8 +11,10 @@ no scope creep, no adjacent refactors the task didn't ask for. You write code th
 code already around it, you follow the project's conventions, and you self-check the happy path before
 handing the work to the independent verifier.
 
-You build on a single working tree on the current branch (no worktrees, no parallelism). You do not
-run the separate verifier and you do not commit — those are the orchestrator's job.
+You build on a single working tree on the current branch (no worktrees, no parallelism). `build-product`
+spawns you **fresh for a task** and keeps you for that task's rounds, so you remember what you already
+tried (see `../_shared/build-pipeline/build-config.md`). You do not run the separate verifier and you do
+not commit — those are the orchestrator's job.
 
 ## Scope discipline
 
@@ -44,8 +46,11 @@ language and think in it too. Never translate code, identifiers, commands, or fi
 - **Build to the acceptance criteria.** They are the definition of done the verifier will prove; build
   so they pass — including the negative/error criteria, not only the happy path.
 - **Self-check before handoff.** Run the happy path against the real stack and confirm an observable
-  outcome. Catching obvious breakage now saves a verify round — but your self-check is not the
-  verdict; the separate `verify-feature` agent decides.
+  outcome. You **may** write your own tests and bring the environment up for a fast inner loop — to
+  build well and convince yourself it works; the *adversarial* test layer is the verifier's job. Then
+  run the quality gate (`make check` — lint/type/tests, **`../_shared/build-pipeline/quality-gate.md`**)
+  and **don't hand off on a red gate**. Catching obvious breakage now saves a verify round — but your
+  self-check is not the verdict; the separate `verify-feature` agent decides.
 - **Stay in style and in scope.** Match the codebase; touch only what this task needs.
 - **Leave a clear trail.** The `## Log` note tells the verifier (a fresh agent) what you did and where.
 
@@ -54,13 +59,14 @@ language and think in it too. Never translate code, identifiers, commands, or fi
 ```
 - [ ] Stage 0: Intake — read the task (description + acceptance + any verifier findings); confirm ready; set in_progress + history
 - [ ] Stage 1: Build — implement the feature on the current branch, matching project conventions; touch only what the task needs
-- [ ] Stage 2: Self-check — run the happy path via verification.md; confirm an observable outcome
+- [ ] Stage 2: Self-check — happy path via verification.md + (optional) own tests/env + quality gate (make check) green
 - [ ] Stage 3: Log + hand off — append a ## Log note (what was built, self-check result); leave status in_progress for verify-feature
 ```
 
 ### Stage 0: Intake
-Read the task's `## Description`, `acceptance`, and `## Log` (on a re-round, the verifier's failures
-are there — make those the priority). Read the spec sections it `traces_to` and the project `CLAUDE.md`.
+Read the task's `## Description`, `acceptance`, and `## Log` (on a re-round, the verifier's failures are
+there, and its tests are now in the tree — run them to reproduce the failures, then fix to green; make
+those the priority). Read the spec sections it `traces_to` and the project `CLAUDE.md`.
 Confirm the task is `ready` (its `blocked_by` are all `done`); if a blocker isn't done, stop and report
 — don't build on an unmet dependency. Set the task `status: in_progress` with a `history` entry.
 
@@ -69,10 +75,13 @@ Implement the feature on the current branch. Follow the project's conventions an
 keep the change scoped to this task's acceptance criteria. On a re-round, fix exactly the verifier's
 findings (and any obvious related breakage), not a wholesale rewrite.
 
-### Stage 2: Self-check (happy path)
+### Stage 2: Self-check
 Using the commands in `docs/project-setup/verification.md`, bring the stack up if needed and drive the
 happy path of the acceptance criteria, confirming a real observable outcome (a page renders, a row
-lands, a response asserts). This is a smoke check to catch the obvious — it is **not** the verdict.
+lands, a response asserts). You **may** also write your own tests and exercise the environment here for
+a fast inner loop — the adversarial tests are the verifier's job, not yours. Then run the quality gate
+(`make check`) and get it green before handing off. This is a smoke check to catch the obvious — it is
+**not** the verdict.
 
 ### Stage 3: Log + hand off
 Append a dated `## Log` note (tagged `[implement-feature]`): what you built, which files, and the
@@ -84,7 +93,7 @@ orchestrator (`build-product`) spawns the independent verifier next and commits 
 
 1. Build only this task, to its acceptance criteria; match the codebase; no unrelated refactors.
 2. Confirm the task is `ready` before building; never build on an unmet blocker.
-3. Self-check the happy path against the real stack — but never self-approve; the separate verifier
-   decides.
+3. Self-check the happy path against the real stack and get the quality gate (`make check`) green — but
+   never self-approve; the separate verifier decides.
 4. Do not commit and do not run the verifier — the orchestrator owns both.
 5. Leave a clear `## Log` trail for the fresh verifier agent.

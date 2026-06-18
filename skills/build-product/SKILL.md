@@ -14,11 +14,15 @@ parallelism. The backlog is the source of truth, so you can be killed and resume
 The loop, per task:
 
 ```
-pick one ready task → implement-feature → verify-feature (separate fresh agent)
-   → pass?  → set done → checkpoint commit (with task id) → regenerate board → next
-   → fail?  → hand findings back to implement-feature, repeat (bounded by max_verify_iterations)
+pick one ready task → implement-feature (fresh subagent + cheap gate) → verify-feature (separate agent)
+   → pass?  → full gate green → set done → checkpoint commit (with task id) → regenerate board → next
+   → fail?  → hand findings back to the SAME implement-feature agent, repeat (bounded by max_verify_iterations)
    → cap?   → set needs_human, surface it, move on to the next ready task
 ```
+
+Each sub-skill runs as a **subagent**: `implement-feature` is spawned **fresh per task** and kept for
+that task's rounds (so it remembers what it tried); `verify-feature` is a **separate** agent. Lifecycle
+rules: **`../_shared/build-pipeline/build-config.md`**.
 
 ## Language
 
@@ -49,8 +53,9 @@ Read `docs/build-plan/.build-config.md` for `mode` and `max_verify_iterations`. 
 ### Step 0: Intake + resume
 Read `docs/build-plan/tasks/*.md` and `.build-config.md` (write the config if absent). Detect progress:
 `done` tasks are finished (never rebuild them); a task left `in_progress` from a killed run is
-re-evaluated (treat it as the next thing to drive — re-verify before committing). Honor `--task <id>`
-(build just that one) or `--from <id>` (start there).
+re-evaluated (treat it as the next thing to drive — re-verify before committing). Also **reclaim a
+stale env lock** left by a killed run (**`../_shared/build-pipeline/env-access.md`**). Honor
+`--task <id>` (build just that one) or `--from <id>` (start there).
 
 ### The loop
 Repeat until no `ready` task remains:
@@ -58,17 +63,23 @@ Repeat until no `ready` task remains:
 1. **Compute the ready set** — `todo` tasks whose `blocked_by` are all `done`. If empty, exit to Done.
 2. **Pick one** — the lowest `id` among ready (deterministic, reproducible). In interactive, announce
    it and confirm before starting.
-3. **Set `in_progress`** (history entry) and **dispatch by `type`:**
+3. **Set `in_progress`** (history entry), **acquire the env lease** for this task (per
+   **`../_shared/build-pipeline/env-access.md`** — its subagents inherit it), and **dispatch by `type`:**
    - **`setup`** → invoke `setup-dev-environment` (scoped to this task's work).
-   - **`feature`** → invoke `implement-feature`, then spawn **`verify-feature` as a separate, fresh
-     subagent** (no implementer bias). Run the **bounded loop**: on a verify FAIL, hand the findings
-     back to `implement-feature` and verify again; each round bumps `verify_attempts`. On PASS, the
-     task is done-eligible. When `verify_attempts` reaches `max_verify_iterations` with a critical
-     criterion still failing, set `status: needs_human`, surface it, and move on — do not loop further.
+   - **`feature`** → **spawn `implement-feature` as a fresh subagent** (clean context for this task),
+     then spawn **`verify-feature` as a separate agent** (no implementer bias). Run the **bounded
+     loop**: on a verify FAIL, hand the findings back to the **same** `implement-feature` agent (keep
+     its context — it remembers what it tried) and verify again; each round bumps `verify_attempts`. On
+     PASS, the task is done-eligible. When `verify_attempts` reaches `max_verify_iterations` with a
+     critical criterion still failing, set `status: needs_human`, surface it, and move on — do not loop
+     further. Lifecycle rules: **`../_shared/build-pipeline/build-config.md`**.
    - **`verify`** (cross-cutting) → spawn `verify-feature` on it directly.
-4. **On PASS → finalize the task:** set `status: done` (history entry) and make a **checkpoint commit**
-   by invoking the `commit` skill — its message carries this task's id (e.g. `[T012]`) and what was
-   done. In interactive you may confirm the commit; in autopilot it commits.
+4. **On PASS → finalize the task:** first confirm the **full quality gate is green** (`make check` —
+   lint/type + the whole accumulated test suite, **`../_shared/build-pipeline/quality-gate.md`**); a red
+   gate routes back to the same `implement-feature` agent (it counts as a round) and is never committed
+   red. Then set `status: done` (history entry) and make a **checkpoint commit** by invoking the
+   `commit` skill — its message carries this task's id (e.g. `[T012]`) and what was done. In interactive
+   you may confirm the commit; in autopilot it commits. **Release the env lease** after the commit.
 5. **Regenerate `docs/build-plan/board.md`** from the task files.
 6. **Continue** to the next ready task.
 
@@ -82,14 +93,19 @@ ids — the human's action list), and how many are blocked and by what. Point th
 
 ## Rules
 
-1. **Conduct, don't duplicate.** Never write or verify a feature yourself — invoke `implement-feature`,
-   `verify-feature`, `setup-dev-environment`, `commit`. 
+1. **Conduct, don't duplicate.** Never write or verify a feature yourself — spawn `implement-feature`
+   (fresh per task) and `verify-feature` (separate) as subagents, and invoke `setup-dev-environment`,
+   `commit`.
 2. **One task at a time, in dependency order.** Pick a single `ready` task per iteration; never build
    on an unmet blocker.
 3. **Verify in a separate, fresh agent** — never let the implementer self-approve.
 4. **Bounded loop.** Cap implement↔verify at `max_verify_iterations`; escalate to `needs_human` rather
    than looping forever. `needs_human` always stops for that task, in both modes.
-5. **Checkpoint commit per finished task**, carrying the task id; the `commit` skill writes the message.
+5. **Checkpoint commit per finished task** — only after the full quality gate is green — carrying the
+   task id; the `commit` skill writes the message.
 6. **Resume, don't restart.** The backlog is the source of truth — reuse `done`, re-verify a stale
    `in_progress`, never rebuild finished work.
 7. **`board.md` is always regenerated** from the task files; never hand-edited.
+8. **Hold the env lease for a task's span** and release it when the task leaves the loop (done/committed
+   or escalated to `needs_human`); reclaim a stale lease on resume. See
+   **`../_shared/build-pipeline/env-access.md`**.

@@ -1,6 +1,6 @@
 ---
 name: design-dev-architecture
-description: "Design the development-time architecture that lets the product be built fast and well with AI: how to run the whole product locally (Docker Compose topology, local stand-ins for cloud/managed services with prod-equivalent APIs, seed data), how it is tested in an AI-drivable way (test levels + an e2e harness an agent can run and verify, e.g. Playwright for web), and how the AI tooling is configured for the chosen stack (Claude Code config, which Anthropic plugins/skills to install, MCP servers, other agents) — backed by research into the current tools and an adversarial review pass. Use after design-architecture (reads docs/project-spec/architecture.research.md and docs/project-spec/user-flows.research.md) as the final, technical step of the create-project-spec pipeline. Writes a detailed, source-cited docs/project-spec/dev-architecture.research.md (+ adr/*) plus a short human summary; an internal reviewer pass checks the draft and is merged in, then removed. The inner-loop / developer-experience layer — it never redesigns the production architecture or re-opens stack choices."
+description: "Design the development-time architecture that lets the product be built fast and well with AI: how to run the whole product locally (Docker Compose topology, local stand-ins for cloud/managed services with prod-equivalent APIs, seed data), how it is tested in an AI-drivable way (test levels + purpose-built developer/test scripts + an e2e harness an agent can run and verify, e.g. Playwright for web), how concurrent access to the single shared local environment is coordinated (lock and/or per-run isolation), and how the AI tooling is configured for the chosen stack (Claude Code config, which Anthropic plugins/skills to install, MCP servers, other agents) — backed by research into the current tools and an adversarial review pass. Use after design-architecture (reads docs/project-spec/architecture.research.md and docs/project-spec/user-flows.research.md) as the final, technical step of the create-project-spec pipeline. Writes a detailed, source-cited docs/project-spec/dev-architecture.research.md (+ adr/*) plus a short human summary; an internal reviewer pass checks the draft and is merged in, then removed. The inner-loop / developer-experience layer — it never redesigns the production architecture or re-opens stack choices."
 ---
 
 # Design Dev Architecture Skill
@@ -80,6 +80,14 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 - **Prod-parity over convenience.** Prefer a local stand-in that matches the prod API (e.g. an S3
   API-compatible service in a container for a prod object store) over a convenient mock that
   hides real integration behavior. Flag every remaining local↔prod divergence explicitly.
+- **Two axes of local fidelity — don't conflate them.** Parity **stand-ins** *mirror* prod (every
+  divergence is a risk to close). Purpose-built **developer/test scripts** *deliberately diverge* for
+  speed (skip expensive stages, cached intermediates, presets) — that divergence is a documented,
+  intentional tradeoff, not a risk. Design both.
+- **The shared env is a single resource.** Coordinate access to it (an advisory lock baked into the
+  bring-up command, with a lease + stale-reclaim) or isolate per run (ephemeral data dir / unique
+  project + ports) — never let two actors clobber it, and never let a killed holder deadlock it. See
+  **`../_shared/build-pipeline/env-access.md`**.
 - **One command to run it all — for the human too.** The whole product comes up locally with a
   single command — seeded, wired, and ready — not a page of manual steps. The same command serves
   **both the AI agent and a human developer**: a person must be able to bring up the full
@@ -104,7 +112,7 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 
 ```
 - [ ] Stage 0: Intake — load architecture.research.md + user-flows.research.md; components/tools, prod services, flows; dev constraints; read mode
-- [ ] Stage 1: Elicit — local-run (Run it) + the verification loop (Drive/Prove/Unblock × UX/Backend/E2E) + AI tooling
+- [ ] Stage 1: Elicit — local-run (Run it; env-access; dev/test scripts) + the verification loop (Drive/Prove/Unblock × UX/Backend/E2E) + AI tooling
 - [ ] Stage 2: Research — verify the tools (local stand-in parity / browser-driving + e2e framework / MCP servers / current plugins) (adaptive)
 - [ ] Stage 3: Draft — assemble; ADRs; draft dev-architecture.research.md (+ adr/*)
 - [ ] Stage 4: Review — spawn reviewer → dev-architecture.review.md (intermediate)
@@ -137,6 +145,17 @@ When a fork is blocked on context only the user holds, invoke `gather-context` s
    usable by **both the AI agent and a human developer**: capture how a person brings it up and
    actually opens/uses the running product (the local URL/port, default seeded login, where to
    watch logs), not just an agent-only harness. The **divergences** from prod (each a named risk).
+   Also decide the **environment access model** — how concurrent actors avoid clobbering the one
+   shared env: an **advisory lock** baked into the bring-up command (lease + stale-reclaim) for a
+   single heavy shared stack, and/or **per-run isolation** (ephemeral data dir / unique compose
+   project + port offset) where it's cheap. Method: **`../_shared/build-pipeline/env-access.md`**.
+   And specify the **developer & test scripts** the project needs — purpose-built local paths that
+   **deliberately diverge** from prod for speed: fast subset / single-stage runners (resume-from-stage,
+   skip the expensive stages), fixture / sample / pre-computed-intermediate generation, and
+   intermediate-output inspectors/visualizers. For each: its purpose, the **intentional divergence**
+   from prod and why it's an acceptable speed tradeoff (not a parity risk), and how the agent uses it
+   to drive/prove faster. `setup-dev-environment` scaffolds their skeleton; they are built out as
+   backlog tasks.
 2. **The agent's verification loop (Drive it · Prove it · Unblock it) — the heart of this phase.**
    For each surface the product has (drop one that doesn't apply), give the agent the maximum,
    fastest way to close the loop. Fill the matrix:
@@ -200,7 +219,11 @@ drive path; auth or unknown-state friction left in place that forces a human; lo
 grep. Then the usual: a local stand-in that does NOT actually match the prod API (claimed parity
 is false); an e2e harness that secretly needs a human; a tool/plugin/MCP that's deprecated or
 doesn't exist; a local service or test that traces to no component or flow; over-built infra
-(reproducing prod HA locally); secrets in the compose file; a divergence that's understated.
+(reproducing prod HA locally); secrets in the compose file; a divergence that's understated. Also: a
+developer/test script whose purpose or intentional divergence isn't documented (or one drifting toward
+re-implementing prod); **no fast path**, forcing the agent to run the full expensive stack just to
+verify a small change; an env two actors can clobber with no lock or isolation, or a lock with no
+stale-reclaim (a killed agent deadlocks the env).
 
 ### Stage 5: Conflict gate
 If the review found 🔴 critical findings:
@@ -271,3 +294,6 @@ When invoked by `propagate-changes` with an upstream change, switch to **amend m
    `design-architecture` instead.
 7. Every tool fact is cited; every fork is logged; the review always runs (both modes), is merged
    in, and the review file is then deleted.
+8. Design the **environment-access model** (advisory lock and/or per-run isolation) and the
+   **developer/test scripts** (fast, intentionally-divergent local paths) as first-class deliverables —
+   never leave the shared env uncoordinated or the agent without a fast path.

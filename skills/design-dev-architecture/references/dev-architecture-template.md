@@ -29,6 +29,23 @@ person can run and use the product, not only an agent.>
 - **Compose topology:** <services, networks, volumes — the shape of the local stack.>
 - **Seed data:** <how the local stack is populated and reset.>
 - **Env / secrets:** <how config and secrets are provided locally — never real secrets in the repo.>
+- **Environment access model:** <how concurrent actors avoid clobbering the one shared env — an
+  advisory lock baked into bring-up (lease + stale-reclaim) for the shared stack, and/or per-run
+  isolation (ephemeral data dir / unique compose project + port offset). Per
+  `_shared/build-pipeline/env-access.md`.>
+
+## Developer & test scripts (fast, intentionally-divergent local paths)
+
+> Purpose-built scripts that **deliberately diverge** from prod for fast iteration / integration
+> testing — distinct from the parity stand-ins above. Each names its intentional divergence (a
+> documented speed tradeoff, not a parity risk). `setup-dev-environment` scaffolds the skeleton; the
+> full scripts are built as backlog tasks.
+
+| Script / command | Purpose | Intentional divergence from prod | How the agent uses it |
+|------------------|---------|----------------------------------|-----------------------|
+| <run subset / single stage> | <fast iterate on one stage> | <skips transcription; uses cached intermediates> | <drive a stage; assert its output> |
+| <fixture / sample generator> | <known inputs + pre-computed intermediates> | <local sample data, no cloud> | <seed a known state fast> |
+| <intermediate inspector / visualizer> | <see crop / scene / caption output> | <local render, no prod assets> | <prove an intermediate outcome> |
 
 ## Verification loop (maximize the agent's autonomous feedback)
 

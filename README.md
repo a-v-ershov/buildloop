@@ -36,14 +36,15 @@ a time, on a single working tree (no parallelism):
 | Step | Skill | Writes |
 |------|-------|--------|
 | — | `build-product` | (orchestrates the loop below) |
-| 1 | `setup-dev-environment` | the scaffolded repo + `docs/project-setup/` (setup log, verification contract) |
+| 1 | `setup-dev-environment` | the scaffolded repo + enforced quality gate + `docs/project-setup/` (setup log, verification contract) |
 | 2 | `plan-development` | `docs/build-plan/` — a kanban backlog, one markdown file per task |
 | 3 | `implement-feature` | the feature, in the working tree |
-| 4 | `verify-feature` | a pass/fail verdict — runs as a separate, unbiased agent |
+| 4 | `verify-feature` | adversarial tests + a pass/fail verdict — a separate, unbiased agent |
 
-`build-product` picks one ready task at a time (a task whose blockers are all `done`), builds it,
-verifies it in a fresh agent (bounded — at the cap a task escalates to `needs_human`), then makes a
-checkpoint commit carrying the task id. When the spec changes later, **`propagate-changes`** walks the
+`build-product` picks one ready task at a time (a task whose blockers are all `done`), builds it in a
+fresh per-task agent, verifies it in a separate agent that authors adversarial tests (bounded — at the
+cap a task escalates to `needs_human`), and — once the quality gate is green — makes a checkpoint commit
+carrying the task id. When the spec changes later, **`propagate-changes`** walks the
 edit forward through the spec docs and into the backlog, surgically, asking only on critical or
 destructive changes. Everything under `docs/build-plan/` and `docs/project-setup/` is committed
 project documentation.

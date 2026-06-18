@@ -28,12 +28,17 @@ placeholders from the spec and the detected state.
 | docker-compose.yml | app + Postgres + MinIO | local-run topology | yes | no |
 | seed script | scripts/seed.ts | seed strategy | yes | no |
 | entrypoint | Makefile `dev` target → `docker compose up` | one-command bring-up | yes | no |
+| quality gate | linter+formatter+typechecker config (zero-tolerance) | test levels / quality-gate.md | yes | no |
+| `make check` | target running lint + type-check + tests | quality-gate.md | yes | no |
+| pre-commit hook | runs `make check`, blocks commit on red | quality-gate.md | yes | no |
+| env-access | lock helper baked into bring-up (gitignored lock) and/or per-run isolation | env-access.md | yes | no |
+| dev/test scripts | skeleton of fast local scripts (full impl = backlog) | dev-architecture / dev scripts | yes | no |
 | project CLAUDE.md | stack notes + commands **+** project documentation map (`_shared/agent-guide.md`) | AI tooling | yes | partial (back up) |
 
 ## C. AI tooling  (config auto; plugin/MCP installs gated)
 | Item | Action | From | Gated? |
 |------|--------|------|--------|
-| .claude/settings.json | hooks/permissions | AI tooling | no (config) |
+| .claude/settings.json | hooks/permissions incl. **Stop hook running the gate** | AI tooling / quality-gate.md | no (config) |
 | MCP: postgres | register db MCP server | AI tooling | yes (install) |
 | plugin: <name> | install | AI tooling | yes (install) |
 
@@ -55,7 +60,8 @@ placeholders from the spec and the detected state.
 - Scaffolded .gitignore, docker-compose.yml, scripts/seed.ts, Makefile.
 - Wrote project CLAUDE.md (backed up previous to CLAUDE.md.bak).
 - Registered the postgres MCP server.
-- Smoke-test: `make dev` came up green; app reachable at http://localhost:3000; seed data present.
+- Smoke-test: `make dev` came up green; app reachable at http://localhost:3000; seed data present;
+  `make check` green and the pre-commit hook blocks a deliberately-broken commit.
 
 ## Skipped (already present)
 - Docker (already installed). Node 20 (already on PATH).
@@ -80,6 +86,18 @@ made executable. This is the project-specific input the generic `verify-feature`
 - App URL: <http://localhost:3000> · Default seeded login: <user / token>.
 - Logs: `make logs` (or `docker compose logs -f <svc>`).
 
+## Environment access (one shared env — coordinate or isolate)
+- Mechanism: <advisory lock baked into `make dev`/`make down` (lease + stale-reclaim) and/or per-run
+  isolation (`--data-dir` / `COMPOSE_PROJECT_NAME` + port offset)>.
+- Acquire / release: `make dev` acquires · `make down` releases · force-clear a stuck lock: `make env-unlock`.
+- Standalone skill runs acquire and release the env themselves. Method: `_shared/build-pipeline/env-access.md`.
+
+## Gate (must be green before commit)
+- One command: `make check` → format check + lint + type-check + tests (the accumulated suite).
+- Zero-tolerance: fails on lint/type errors, new warnings, and new suppression comments.
+- Enforced by a pre-commit hook (blocks the commit on red) and a Claude Code Stop hook (feeds failures
+  back). Method: `_shared/build-pipeline/quality-gate.md`.
+
 ## Drive & prove, per surface
 | Surface | Run it | Drive it | Prove it (observable) |
 |---------|--------|----------|-----------------------|
@@ -98,4 +116,14 @@ made executable. This is the project-specific input the generic `verify-feature`
 | Unit | `pnpm test` | <...> |
 | Integration | `pnpm test:int` | against local stand-ins |
 | E2E (agent-driven) | `pnpm e2e` | the user flows, no manual step |
+
+- Tests live in `<dir>` (e.g. `tests/`); name a new one `<convention>` (e.g. `test_<unit>.py` /
+  `<name>.test.ts`). The verifier writes its adversarial tests here; the implementer may add its own.
+
+## Developer & test scripts (fast, intentionally-divergent local paths)
+| Command | Purpose | Diverges from prod by | Isolated? |
+|---------|---------|------------------------|-----------|
+| `<run subset / stage>` | fast iterate on one stage | skips expensive stages; cached intermediates | per-run `--data-dir` |
+| `<fixture / sample gen>` | known inputs + intermediates | local sample data, no cloud | yes |
+| `<inspector / visualizer>` | see an intermediate outcome | local render, no prod assets | yes |
 ```
