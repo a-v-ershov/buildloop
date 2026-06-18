@@ -71,7 +71,9 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
   but cannot independently verify is the central failure this phase exists to prevent.
 - **Prove the real outcome, not "it ran".** Every verification ends in an observable proof the
   agent can read: a screenshot diff, a DB row that landed, a structured log line that proves the
-  path executed, an asserted HTTP response. "No error" is not proof.
+  path executed, an asserted HTTP response. "No error" is not proof. The proof is checked against
+  the flow's **acceptance criteria** from `user-flows.research.md` — those AC (and the per-state
+  assertions) are the pass/fail spec the agent asserts, not an ad-hoc guess.
 - **Unblock autonomous runs by design.** Anything that would force a human into the loop — real
   auth, unknown state, unreadable logs — is removed up front: dummy/seedable auth, seed scripts
   for a known state, structured logs the agent can grep, log lines added to prove a path ran.
@@ -143,8 +145,10 @@ the user and offer to run `/design-architecture` first. Read the mode.
 
    Plus the **test levels** (unit / integration / e2e) and what each covers, and **test data**
    provisioning/reset. **Map each flow** from `user-flows.research.md` to *how the agent drives it*
-   and *how it proves success* (incl. important alternate/error paths). The bar: for every flow and
-   surface, the agent can run → drive → prove **with no manual step**.
+   and *how it proves success* (incl. important alternate/error paths). Each flow's **acceptance
+   criteria** (and per-state assertions) are the proof targets — map every AC to the concrete check
+   that asserts it. The bar: for every flow and surface, the agent can run → drive → prove **with
+   no manual step**.
 3. **AI-development tooling (tuned to the stack — widens the loop).** The **Claude Code config**
    (project `CLAUDE.md` content, useful `settings.json` hooks); the **MCP servers** that give the
    agent more reach (browser-driving, db, cloud/log access, HTTP); the **recommended Anthropic /

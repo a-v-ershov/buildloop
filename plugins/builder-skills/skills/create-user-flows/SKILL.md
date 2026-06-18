@@ -55,6 +55,13 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
   than inventing a novel flow where a known one fits.
 - **Every flow traces to a feature.** A flow needing something not in `product-requirements.research.md`
   is a gap — surface it. A feature with no flow is a gap too.
+- **Every flow carries acceptance criteria.** The success outcome and each significant state
+  (empty, error, no-access) gets a behavioral, testable assertion (Given/When/Then or EARS). These
+  are exactly what the build-time agent will drive and prove — write them so a machine can check
+  pass/fail, not as prose.
+- **Reuse the domain language.** Entities and terms come from the domain model + glossary in
+  `product-requirements.research.md` — refer to them by their canonical names; never rename or
+  invent a parallel vocabulary.
 - **Take a position.** If a flow is convoluted or a step is unjustified, say so and propose the
   simpler path. No hedging.
 
@@ -62,7 +69,7 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 
 ```
 - [ ] Stage 0: Intake — load product-requirements.research.md; list features, personas, JTBD; read mode
-- [ ] Stage 1: Elicit — journey map + key flows + states/edge cases (interactive: ask · autopilot: self-answer + log forks)
+- [ ] Stage 1: Elicit — journey map + key flows (+ acceptance criteria) + states/edge cases (+ assertions) (interactive: ask · autopilot: self-answer + log forks)
 - [ ] Stage 2: Research — conventional flows / onboarding & auth patterns for the category (adaptive)
 - [ ] Stage 3: Draft — draft user-flows.research.md
 - [ ] Stage 4: Review — spawn reviewer → user-flows.review.md (intermediate)
@@ -84,9 +91,12 @@ Build the flows across three layers:
    touchpoint, the friction/emotion.
 2. **Key user flows** — one per main feature / job-to-be-done: entry point; numbered steps (user
    actions + what they see, as state not visual design); decision/branch points and where each
-   leads; success outcome; traceability to the feature(s). Cover important alternate/error paths.
+   leads; success outcome; **acceptance criteria** on the success outcome (behavioral, testable —
+   Given/When/Then or EARS); traceability to the feature(s). Cover important alternate/error paths.
 3. **States & edge cases** — per key step/screen: empty/first-time, loading, error/retry, success,
-   permission/auth (signed-out, no access), and how the user recovers from each.
+   permission/auth (signed-out, no access), and how the user recovers from each. Give each
+   significant state a short **assertion** (what must be observably true in it) so it can be
+   checked later.
 
 - **interactive:** ask at each fork (e.g. "guest checkout or require sign-in first?").
 - **autopilot:** choose the flow shape from the requirements + (stage 2) patterns + best
@@ -111,8 +121,10 @@ Spawn a separate reviewer subagent to find inconsistencies + gaps and write
 `docs/project-spec/user-flows.review.md` (it does NOT edit the draft; this file is intermediate).
 Method + format: **`../_shared/spec-pipeline/review-method.md`** and `review-template.md`. For
 this phase the reviewer especially probes: a flow needing a capability not in the requirements; a
-feature with no flow; missing error/empty/auth states; a convoluted path where a proven simpler
-one exists; a branch resolved without justification.
+feature with no flow; missing error/empty/auth states; a success outcome or critical state with no
+acceptance criterion / no assertable proof of success; a flow that renames or contradicts the
+domain model's vocabulary; a convoluted path where a proven simpler one exists; a branch resolved
+without justification.
 
 ### Stage 5: Conflict gate
 If the review found 🔴 critical findings:
@@ -140,12 +152,13 @@ open risks. Format rules: **`../_shared/spec-pipeline/output-format.md`**.
 ### Stage 8: Hard gate
 - **interactive:** STOP — this is a hard gate:
   > "User flows done → user-flows.research.md (detail), user-flows.summary.md (for you). Review
-  > it. When you approve, run `/design-architecture` for the technical layer. I will not proceed
-  > automatically."
+  > it. When you approve, run `/define-design-decisions` for the design direction. I will not
+  > proceed automatically."
 - **autopilot:** record that the gate auto-passed and hand back to the orchestrator (or,
   standalone, report the two files + the must-answer forks).
 
-Do NOT start architecture or any technical work in this session unless the user explicitly approves.
+Do NOT start design-decisions, architecture, or any technical work in this session unless the user
+explicitly approves.
 
 ## Rules
 
@@ -154,5 +167,9 @@ Do NOT start architecture or any technical work in this session unless the user 
 2. Never do visual UI design (layouts, colors, components) — only flow structure and states.
 3. Never make technical/architecture decisions — that is the next step.
 4. Never add features here — surface gaps back to product-requirements.research.md instead.
-5. Every adopted pattern is cited; every fork is logged; the review always runs (both modes), is
+5. Every flow's success outcome and each significant state carries a behavioral, testable
+   acceptance criterion — the assertions the build-time agent will prove.
+6. Reuse the domain model + glossary vocabulary from product-requirements.research.md; never invent
+   a parallel set of names.
+7. Every adopted pattern is cited; every fork is logged; the review always runs (both modes), is
    merged in, and the review file is then deleted.

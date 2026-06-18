@@ -1,6 +1,6 @@
 ---
 name: create-project-spec
-description: "Produce a project's initial documentation end to end, from a raw idea to a buildable spec. Use when starting a new project (or a major new initiative) and you want the full guided flow rather than running each step by hand. Orchestrates the pipeline — validate-idea → define-product-requirements → create-user-flows → design-architecture → design-dev-architecture — where each phase researches real-world facts, runs an adversarial review (merged in, then removed), and emits a detailed research doc + a short human summary. Asks two setup choices up front (interactive vs autopilot; final combined summary) and can finish with one human-readable spec summary. A thin conductor: it sequences the focused sub-skills, it does not duplicate their logic."
+description: "Produce a project's initial documentation end to end, from a raw idea to a buildable spec. Use when starting a new project (or a major new initiative) and you want the full guided flow rather than running each step by hand. Orchestrates the pipeline — validate-idea → define-product-requirements → create-user-flows → define-design-decisions → design-architecture → design-dev-architecture — where each phase researches real-world facts, runs an adversarial review (merged in, then removed), and emits a detailed research doc + a short human summary. Asks two setup choices up front (interactive vs autopilot; final combined summary) and can finish with one human-readable spec summary. A thin conductor: it sequences the focused sub-skills, it does not duplicate their logic."
 argument-hint: "[--from <step>]"
 ---
 
@@ -19,8 +19,9 @@ is intermediate: applied at merge, then deleted):
 | 1 | `validate-idea` | `idea-validation.research.md` | `idea-validation.summary.md` |
 | 2 | `define-product-requirements` | `product-requirements.research.md` | `product-requirements.summary.md` |
 | 3 | `create-user-flows` | `user-flows.research.md` | `user-flows.summary.md` |
-| 4 | `design-architecture` | `architecture.research.md` (+ `adr/*`) | `architecture.summary.md` |
-| 5 | `design-dev-architecture` | `dev-architecture.research.md` (+ `adr/*`) | `dev-architecture.summary.md` |
+| 4 | `define-design-decisions` | `design-decisions.research.md` | `design-decisions.summary.md` |
+| 5 | `design-architecture` | `architecture.research.md` (+ `adr/*`) | `architecture.summary.md` |
+| 6 | `design-dev-architecture` | `dev-architecture.research.md` (+ `adr/*`) | `dev-architecture.summary.md` |
 
 All under `docs/project-spec/`. Each phase researches and reviews itself — there is no separate
 review step to offer, and no review file survives into the final spec.
@@ -59,8 +60,9 @@ Write the file (create `docs/project-spec/` if needed):
 - [ ] Step 1: validate-idea                  → gate (interactive) / auto-advance (autopilot)
 - [ ] Step 2: define-product-requirements     → gate / auto-advance
 - [ ] Step 3: create-user-flows               → gate / auto-advance
-- [ ] Step 4: design-architecture             → gate / auto-advance
-- [ ] Step 5: design-dev-architecture         → gate / auto-advance
+- [ ] Step 4: define-design-decisions          → gate / auto-advance
+- [ ] Step 5: design-architecture             → gate / auto-advance
+- [ ] Step 6: design-dev-architecture         → gate / auto-advance
 - [ ] Done: build summary.md (if final_summary) + summarize the documentation set
 ```
 

@@ -63,6 +63,23 @@ investments (infra, accounts, licenses).>
 - **Sync vs async boundaries:** <what is request/response, what is queued/event-driven, and why.>
 - **Trust / security boundaries:** <what crosses each boundary; what is authenticated/authorized.>
 
+## Threat model (if security-sensitive)
+
+> Run only when the product handles money, PII/credentials, or shared/multi-tenant access. For a
+> product with no such assets, write "Not applicable — no sensitive assets" and move on.
+> STRIDE-lite over the component map + trust boundaries above; fold every mitigation back into the
+> design and the relevant ADR.
+
+- **Assets:** <what's worth protecting — user data, money, documents, secrets.>
+- **Attack surfaces:** <auth, share links, file upload, payment, public endpoints, …>
+
+| # | Asset / surface | Threat (STRIDE) | Mitigation | ADR / scenario |
+|---|-----------------|-----------------|------------|----------------|
+| 1 | <e.g. share link> | Info disclosure — guessable token | unguessable token + expiry + access log | adr/000N / #4 |
+
+> STRIDE = Spoofing · Tampering · Repudiation · Information disclosure · Denial of service ·
+> Elevation of privilege.
+
 ## Cost & risk sanity check
 
 - **Rough steady-state cost at <N users / stated scale>:** <≈ $X / month — vs budget scenario #3.>

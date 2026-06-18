@@ -25,6 +25,8 @@
 | 2 | <step> | |
 
 - **Success outcome:** <what "done" looks like>
+- **Acceptance criteria:** <Given/When/Then or EARS — testable assertions on the success outcome
+  and key branches. These are what the build-time agent drives and proves.>
 - **Alternate / error paths:** <important non-happy paths and where they lead>
 
 ### Flow: <name>
@@ -36,6 +38,8 @@
 | 1 | <step> | |
 
 - **Success outcome:** <...>
+- **Acceptance criteria:** <Given/When/Then or EARS — testable assertions on the success outcome
+  and key branches.>
 - **Alternate / error paths:** <...>
 
 ## States & edge cases
@@ -43,6 +47,9 @@
 | Flow / step | Empty / first-time | Loading | Error / retry | Success | Auth (signed-out / no access) |
 |-------------|--------------------|---------|---------------|---------|-------------------------------|
 | <flow> | <state> | <state> | <state> | <state> | <state> |
+
+> For each state above that matters, write a one-line assertion (what must be observably true in
+> it) — these become the per-state acceptance criteria the build-time agent checks.
 
 ## Coverage check
 

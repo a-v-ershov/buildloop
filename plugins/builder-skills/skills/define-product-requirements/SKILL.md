@@ -50,6 +50,12 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
   problem, wedge, and business model as settled inputs. Only revisit them to fill genuine gaps.
 - **Every feature traces to a validated need.** Each feature maps to a problem or audience need
   from the validation doc. A feature that traces to nothing is cut, not kept.
+- **Every feature has an acceptance criterion.** Each feature carries at least one behavioral,
+  testable done-condition (Given/When/Then or EARS) — an observable outcome, black-box, never an
+  implementation detail. A feature you cannot write a pass/fail check for is underspecified.
+- **One domain language.** Name the product's core entities and terms once, in a domain model +
+  glossary; every later phase (flows, architecture) reuses those names rather than reinventing
+  them. One concept = one word.
 - **Compare against the real category.** What's table-stakes, what's differentiating, and what
   comparable products ship are research questions (stage 2) — verify and cite, don't guess.
 - **Measurable or it doesn't count.** Each success metric needs a signal, a target, and a way to
@@ -60,7 +66,7 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 
 ```
 - [ ] Stage 0: Intake — load idea-validation.research.md; summarize settled inputs; flag gaps; read mode
-- [ ] Stage 1: Elicit — audience, features, metrics, constraints (interactive: ask · autopilot: self-answer + log forks)
+- [ ] Stage 1: Elicit — audience, features (+ acceptance criteria), domain model & glossary, metrics, constraints (interactive: ask · autopilot: self-answer + log forks)
 - [ ] Stage 2: Research — comparable feature sets / table-stakes / category norms (adaptive)
 - [ ] Stage 3: Draft — draft product-requirements.research.md
 - [ ] Stage 4: Review — spawn reviewer → product-requirements.review.md (intermediate)
@@ -81,11 +87,18 @@ Work the product definition across four dimensions:
 1. **Audience** — primary persona (role, context, the job they hire this product to do);
    segments (primary / secondary / explicitly-not); jobs-to-be-done in the user's words.
 2. **Features (committed scope)** — the full set being built. For each: short name + one-line
-   capability + the validated need it serves (traceability). Group by capability area. Do NOT
-   rank, tier, or defer. Challenge anything that traces to nothing — fold it in properly or drop it.
-3. **Success metrics** — per goal: signal, target (a number), how measured. Tie to the business
+   capability + the validated need it serves (traceability) + **at least one acceptance criterion**
+   (behavioral, testable — Given/When/Then or EARS; the feature-level definition of done, an
+   observable outcome, never implementation detail). Group by capability area. Do NOT rank, tier,
+   or defer. Challenge anything that traces to nothing — fold it in properly or drop it.
+3. **Domain model & glossary** — the core entities the product is about (each: name, the data it
+   owns, key relationships) and a glossary of domain terms in one canonical vocabulary. This is the
+   *conceptual* model (product concepts), NOT a database schema — the physical schema belongs to
+   `design-architecture`. Every feature, and later every flow, refers to these names. An entity a
+   feature needs but the model lacks is a gap to close here.
+4. **Success metrics** — per goal: signal, target (a number), how measured. Tie to the business
    model where relevant.
-4. **Product constraints & non-goals** — budget/timeline/team, platforms/devices, compliance,
+5. **Product constraints & non-goals** — budget/timeline/team, platforms/devices, compliance,
    hard non-negotiables, key assumptions; non-goals as scope boundaries (not deferred features).
    Note raw technical expectations (e.g. "must feel instant") to carry forward — do not decide
    architecture here.
@@ -112,7 +125,9 @@ Spawn a separate reviewer subagent to find inconsistencies + gaps and write
 `docs/project-spec/product-requirements.review.md` (it does NOT edit the draft; this file is
 intermediate). Method + format: **`../_shared/spec-pipeline/review-method.md`** and
 `review-template.md`. For this phase the reviewer especially probes: features that trace to no
-validated need; missing table-stakes the research surfaced; metrics that aren't measurable; an
+validated need; a feature with no acceptance criterion, or an AC that's untestable or
+implementation-level; an entity a feature references but the domain model lacks; glossary terms
+used inconsistently; missing table-stakes the research surfaced; metrics that aren't measurable; an
 audience too vague to act on; scope creep past the validated wedge.
 
 ### Stage 5: Conflict gate
@@ -133,7 +148,9 @@ still-disputed points. What no one could verify goes to `## Open questions`. **T
 Finalize `product-requirements.research.md` (complete `## Sources` and `## Forks / Decisions
 log`). Then write `docs/project-spec/product-requirements.summary.md` from
 **`../_shared/spec-pipeline/summary-template.md`** — essence + the forks the human must answer +
-open risks. Format rules: **`../_shared/spec-pipeline/output-format.md`**.
+open risks. Keep the domain model, glossary, and acceptance criteria in the research doc only; the
+summary names at most a handful of key concepts in plain language (no schema, fields, or
+relations). Format rules: **`../_shared/spec-pipeline/output-format.md`**.
 
 ### Stage 8: Hard gate
 - **interactive:** STOP — this is a hard gate:
@@ -152,5 +169,9 @@ Do NOT start user-flow or architecture work in this session unless the user expl
 2. Never include technical/architecture decisions (stack, APIs, schemas) — that is the next file.
 3. Never tier or defer features — the list is the full committed scope.
 4. Every feature traces to a validated need, or it is cut.
-5. Every category claim is cited; every fork is logged; the review always runs (both modes), is
+5. Every feature carries at least one behavioral, testable acceptance criterion — never an
+   implementation detail.
+6. Define each domain entity and term once in the domain model + glossary; later phases reference
+   it. The summary stays non-technical (key concepts only, no schema).
+7. Every category claim is cited; every fork is logged; the review always runs (both modes), is
    merged in, and the review file is then deleted.

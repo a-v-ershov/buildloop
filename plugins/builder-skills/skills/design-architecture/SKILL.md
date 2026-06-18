@@ -76,6 +76,12 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
   language, or runtime.
 - **Record significant decisions as ADRs** — context (scenarios + role), options, the decision,
   ruled-out alternatives and why, consequences, status.
+- **Threat-model the security-sensitive designs.** If the product handles money, PII/credentials,
+  or shared/multi-tenant access, run a STRIDE-lite pass over the component map and trust boundaries
+  — name the assets, the attack surfaces, the threats (spoofing, tampering, repudiation,
+  info-disclosure, DoS, elevation), and a mitigation for each — and fold the mitigations back into
+  the design and the relevant ADRs. For a product with no such assets, say so and skip it; do not
+  theatre-model a calculator.
 - **Take a position.** Name the anti-pattern: resume-driven development, premature microservices,
   distributed monolith, database-per-service by reflex, Kubernetes on a two-person team, vendor
   lock-in that violates a portability/compliance scenario.
@@ -83,10 +89,10 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 ## Procedure (copy this checklist into your response and check off as you go)
 
 ```
-- [ ] Stage 0: Intake — load user-flows.research.md + product-requirements.research.md; system job + constraints; gaps; read mode
+- [ ] Stage 0: Intake — load user-flows + product-requirements + design-decisions research docs; system job + constraints; gaps; read mode
 - [ ] Stage 1: Elicit — quality-attribute scenarios (measurable) + logical capabilities (NO tools yet)
 - [ ] Stage 2: Research — verify candidate technologies vs the scenarios (capabilities/pricing/limits/maturity)
-- [ ] Stage 3: Draft — per component 2–3 integrated options → recommend; assemble; ADRs; draft architecture.research.md (+ adr/*)
+- [ ] Stage 3: Draft — per component 2–3 integrated options → recommend; assemble; threat model (if security-sensitive); ADRs; draft architecture.research.md (+ adr/*)
 - [ ] Stage 4: Review — spawn reviewer → architecture.review.md (intermediate)
 - [ ] Stage 5: Conflict gate — handle 🔴 findings (interactive: stop · autopilot: self-resolve + log)
 - [ ] Stage 6: Merge — synthesize the final architecture.research.md + ADRs, then delete the review doc
@@ -95,12 +101,15 @@ Read `docs/project-spec/.spec-config.md` for `mode` (`interactive` | `autopilot`
 ```
 
 ### Stage 0: Intake
-Read `docs/project-spec/user-flows.research.md` and `docs/project-spec/product-requirements.research.md`.
-State in one paragraph what the system must do, and list the constraints that bound the technology
-choice: product constraints + raw technical expectations (budget, platforms, compliance, "must
-feel instant", "data stays in EU"), plus **team skills/size** and **existing investments** (infra,
-accounts, licenses). List the gaps. If either file is missing, tell the user and offer to run
-`/create-user-flows` (or `/define-product-requirements`) first. Read the mode.
+Read `docs/project-spec/user-flows.research.md`, `docs/project-spec/product-requirements.research.md`,
+and `docs/project-spec/design-decisions.research.md`. State in one paragraph what the system must
+do, and list the constraints that bound the technology choice: product constraints + raw technical
+expectations (budget, platforms, compliance, "must feel instant", "data stays in EU"); the **design
+decisions that carry technical weight** (media-heaviness, offline/connectivity, realtime UI, target
+platforms — each becomes a quality-attribute scenario below); plus **team skills/size** and
+**existing investments** (infra, accounts, licenses). List the gaps. If `user-flows.research.md` or
+`design-decisions.research.md` is missing, tell the user and offer to run `/create-user-flows` /
+`/define-design-decisions` (or `/define-product-requirements`) first. Read the mode.
 
 ### Stage 1: Elicitation (scenarios + capabilities — before any tool)
 1. **Quality-attribute scenarios.** Before naming a technology, force each into a concrete,
@@ -133,9 +142,13 @@ evaluate each against the component's scenarios and the stage-0 constraints (sat
 cost / ops burden / lock-in) using the stage-2 facts, and **recommend one**. Note where an option
 collapses or splits roles. Then assemble the whole: component map, sync/async boundaries, trust
 boundaries, the primary flow traced end-to-end, and a cost & risk sanity check against the budget
-scenario (if it busts the budget or the team can't run it, revisit the options). Write an **ADR**
-for each significant, hard-to-reverse decision (`references/adr-template.md`, numbered
-`adr/0001-<slug>.md`). Draft `architecture.research.md` from `references/architecture-template.md`,
+scenario (if it busts the budget or the team can't run it, revisit the options). **If the product
+is security-sensitive** (money, PII/credentials, shared/multi-tenant access), run the **STRIDE-lite
+threat model** over that component map and trust boundaries — assets, attack surfaces, threats,
+mitigations — and feed each mitigation back into the design and the affected ADR (use the threat
+model section of `references/architecture-template.md`); for a product with no such assets, record
+that you skipped it and why. Write an **ADR** for each significant, hard-to-reverse decision
+(`references/adr-template.md`, numbered `adr/0001-<slug>.md`). Draft `architecture.research.md` from `references/architecture-template.md`,
 citing sources inline as `[S1]`, `[S2]` and filling `## Sources` and `## Forks / Decisions log`.
 Create `docs/project-spec/` and `docs/project-spec/adr/` if needed.
 
@@ -147,7 +160,8 @@ this phase the reviewer especially probes: a tool choice not justified by a scen
 pricing/limit/"scales to N" claim that's untrue or outdated; a deprecated/renamed technology;
 lock-in that violates a portability/compliance scenario; a component tracing to nothing;
 over-engineering (premature microservices, needless datastores); a cost estimate that busts the
-budget scenario.
+budget scenario; and — for a security-sensitive product — a missing threat model, an identified
+threat with no mitigation, or a trust boundary that doesn't actually hold.
 
 ### Stage 5: Conflict gate
 If the review found 🔴 critical findings:
@@ -194,5 +208,8 @@ unless the user explicitly approves and asks.
    label so a later swap stays cheap.
 7. Never redefine features or flows — surface gaps back to the product layer instead. Leave
    repo/module structure, conventions, tests, and CI/CD to `design-dev-architecture`.
-8. Every tool fact is cited; every fork is logged; the review always runs (both modes), is merged
+8. For a security-sensitive product (money, PII, shared access), threat-model the design
+   (STRIDE-lite) and fold the mitigations into the architecture + ADRs; for a product with no such
+   assets, note that you skipped it and why.
+9. Every tool fact is cited; every fork is logged; the review always runs (both modes), is merged
    in, and the review file is then deleted.

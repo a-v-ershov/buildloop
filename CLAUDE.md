@@ -103,8 +103,9 @@ applied at the merge stage, then deleted. The `create-project-spec` skill is a t
 | 1 | `validate-idea` | Founder-turned-investor | `docs/project-spec/idea-validation.research.md` |
 | 2 | `define-product-requirements` | Product manager | `docs/project-spec/product-requirements.research.md` |
 | 3 | `create-user-flows` | Product designer | `docs/project-spec/user-flows.research.md` |
-| 4 | `design-architecture` | Software architect (requirements-first) | `docs/project-spec/architecture.research.md` (+ `docs/project-spec/adr/*`) |
-| 5 | `design-dev-architecture` | DX / platform engineer | `docs/project-spec/dev-architecture.research.md` (+ `docs/project-spec/adr/*`) |
+| 4 | `define-design-decisions` | Design-system lead | `docs/project-spec/design-decisions.research.md` |
+| 5 | `design-architecture` | Software architect (requirements-first) | `docs/project-spec/architecture.research.md` (+ `docs/project-spec/adr/*`) |
+| 6 | `design-dev-architecture` | DX / platform engineer | `docs/project-spec/dev-architecture.research.md` (+ `docs/project-spec/adr/*`) |
 
 The adversarial review is **built into each phase** (a spawned reviewer subagent), not a separate
 skill, and its file does not survive the merge. The shared machinery lives in
@@ -114,8 +115,9 @@ config/modes, and the summary + review templates).
 **Artifact location & naming: all project-spec artifacts live in `docs/project-spec/` and are
 named as descriptive nouns** (skills are verbs; their outputs are nouns) — `validate-idea` →
 `idea-validation`, `define-product-requirements` → `product-requirements`, `create-user-flows` →
-`user-flows`, `design-architecture` → `architecture` (+ `adr/`), `design-dev-architecture` →
-`dev-architecture` (+ `adr/`), all under `docs/project-spec/`. **Each phase keeps a pair**:
+`user-flows`, `define-design-decisions` → `design-decisions`, `design-architecture` →
+`architecture` (+ `adr/`), `design-dev-architecture` → `dev-architecture` (+ `adr/`), all under
+`docs/project-spec/`. **Each phase keeps a pair**:
 `<noun>.research.md` (detailed, source-cited, for the AI/next phase) and `<noun>.summary.md`
 (short, for the human — essence + forks to answer). A transient `<noun>.review.md` (the
 reviewer's inconsistencies + gaps) is applied at the merge stage and then **deleted** — its
@@ -148,18 +150,29 @@ Conventions for these skills:
 - **Idea validation is adversarial.** A cheap KILL / SKIP / SHRINK pre-filter, then forcing
   questions (demand, audience specificity, problem validation, status-quo competitor, wedge,
   business model). Its outputs are the validation research doc + its human summary — no solutioning.
-- **Two layers: product, then technical (two steps).** `define-product-requirements` +
-  `create-user-flows` form the product layer (WHAT and for WHOM — features, audience, user flows).
-  The technical layer is **two** steps: `design-architecture` (the system/production architecture —
-  components + the concrete technologies that realize them, co-designed because the toolbox shapes
-  the decomposition) then `design-dev-architecture` (the inner loop / developer experience — how to
-  run the product locally with prod-parity stand-ins, how to test it in an AI-drivable way, and how
-  to configure the AI tooling for the stack). `design-dev-architecture` never re-opens the stack or
-  redraws the architecture; product-layer skills never make technical decisions.
+- **Two layers, bridged by design decisions: product → (design) → technical.**
+  `define-product-requirements` + `create-user-flows` form the product layer (WHAT and for WHOM —
+  features, audience, user flows). `define-design-decisions` is the **bridge**: it sets the design
+  direction (design system, key screens, viewports, target platforms, media-heaviness, offline,
+  accessibility) — design decisions only, never mockups or code (the cheapest mockup is real
+  rendered code at implementation time) — and hands the technically-weighty ones to the next step
+  as quality-attribute scenario inputs. The technical layer is **two** steps: `design-architecture`
+  (the system/production architecture — components + the concrete technologies that realize them,
+  co-designed because the toolbox shapes the decomposition) then `design-dev-architecture` (the
+  inner loop / developer experience — how to run the product locally with prod-parity stand-ins,
+  how to test it in an AI-drivable way, and how to configure the AI tooling for the stack).
+  `design-dev-architecture` never re-opens the stack or redraws the architecture;
+  `define-design-decisions` and the product-layer skills never make technical decisions.
 - **The product definition captures the full committed feature set — no prioritization.** No
   must/should/could tiers, no MVP cut line, no deferred-feature backlog. Everything in the
   feature list ships; a feature that doesn't belong is removed, not parked. Every feature traces
-  to a validated need.
+  to a validated need **and carries at least one behavioral, testable acceptance criterion**
+  (Given/When/Then or EARS) — the verifiable definition of done that the `design-dev-architecture`
+  verification loop later proves against. `define-product-requirements` also keeps the **conceptual
+  domain model + glossary** (entities + one canonical vocabulary, reused by every later phase, NOT
+  a database schema) — this lives in the research doc only; the human summary stays non-technical
+  (key concepts at most). User flows then carry their own acceptance criteria on each flow's
+  success outcome and significant states.
 - **Architecture is requirements-first, then co-designed with the toolbox.** Elicit measurable
   quality-attribute scenarios (cost, performance, security, reliability, scale) **first — before
   naming any tool**; this ordering is the guard against tool-first design. Then, for each
@@ -168,7 +181,11 @@ Conventions for these skills:
   driven, not hype-driven. Default to proven tech and the fewest moving parts (prefer an option
   that collapses components unless a scenario forbids it). Keep each component labelled with its
   logical role and record significant decisions as ADRs (options + ruled-out alternatives +
-  trade-offs + status) so a later tool swap stays cheap.
+  trade-offs + status) so a later tool swap stays cheap. **For security-sensitive products** (money,
+  PII/credentials, shared/multi-tenant access) it also runs a **STRIDE-lite threat model** over the
+  component map + trust boundaries (assets, attack surfaces, threats, mitigations) and folds the
+  mitigations back into the design + ADRs; for a product with no sensitive assets it records that
+  it skipped it and why.
 - **Dev architecture is the inner loop, AI-first.** `design-dev-architecture` takes the chosen
   stack and designs three things together: a **prod-parity local run** (local stand-ins whose APIs
   mirror the production services, one-command bring-up, seed data — every divergence named as a

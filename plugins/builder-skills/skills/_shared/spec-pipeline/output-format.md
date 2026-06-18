@@ -66,9 +66,11 @@ Short and scannable — for a person, not for an agent. Target ~½ page. Structu
 ```
 
 Keep it free of tables, citations, and jargon. The research doc holds the rigor; this holds the
-gist + the decisions a human still owns. Because the `.review.md` is deleted after merge, anything
-from the review that matters to a human lands here (open risks) or in the research doc's
-Forks / Decisions log + Open questions.
+gist + the decisions a human still owns. Technical detail — the domain model, glossary, acceptance
+criteria, schemas — stays in the research doc; the summary names at most a few key concepts in
+plain language. Because the `.review.md` is deleted after merge, anything from the review that
+matters to a human lands here (open risks) or in the research doc's Forks / Decisions log + Open
+questions.
 
 ## 3. The review doc is transient — `<artifact>.review.md`
 

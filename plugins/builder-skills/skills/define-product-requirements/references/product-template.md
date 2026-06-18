@@ -24,16 +24,33 @@ validated idea.>
 ## Features (committed scope)
 
 > The full set of features being built. No tiers, no prioritization — everything here ships.
+> Each feature carries ≥1 behavioral acceptance criterion (Given/When/Then or EARS) — an
+> observable outcome, the feature's definition of done, never implementation detail.
 
 ### <Capability area>
-| Feature | What it does | Serves (validated need) |
-|---------|--------------|-------------------------|
-| <name>  | <one line>   | <problem / audience need from validation> |
+| Feature | What it does | Serves (validated need) | Acceptance criteria (behavioral, testable) |
+|---------|--------------|-------------------------|--------------------------------------------|
+| <name>  | <one line>   | <problem / audience need from validation> | <Given/When/Then or EARS — one per line> |
 
 ### <Capability area>
-| Feature | What it does | Serves (validated need) |
-|---------|--------------|-------------------------|
-| <name>  | <one line>   | <need> |
+| Feature | What it does | Serves (validated need) | Acceptance criteria (behavioral, testable) |
+|---------|--------------|-------------------------|--------------------------------------------|
+| <name>  | <one line>   | <need> | <Given/When/Then or EARS — one per line> |
+
+## Domain model & glossary
+
+> The conceptual model — product concepts, NOT a database schema (that's design-architecture).
+> One canonical vocabulary; every later phase (flows, architecture) reuses these names.
+
+### Entities
+| Entity | What it represents | Owns (key data) | Key relationships |
+|--------|--------------------|-----------------|-------------------|
+| <name> | <one line>         | <fields it owns> | <e.g. Owner 1—* Document> |
+
+### Glossary
+| Term | Definition (one line, canonical for this product) |
+|------|---------------------------------------------------|
+| <term> | <meaning> |
 
 ## Success metrics
 
