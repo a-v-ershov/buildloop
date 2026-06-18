@@ -28,6 +28,20 @@ into git. Likewise, never translate code, identifiers, file paths, or commands.
   "Generated with Claude" / "🤖 Generated with..." footers, or any text crediting an AI model
   or tool. Commit messages contain only the change description.
 
+## Backlog task reference
+
+If the change relates to a build-backlog task (one of `docs/build-plan/tasks/T###-*.md`), include the
+task id and what was done in the commit message — the id as a `[T###]` tag in the subject line. This
+makes each commit traceable to the task it advances. `build-product` checkpoint commits always pass
+the id of the task they finalize.
+
+- **Relates to a task:** `<type>: <description> [T012]`. Put what was done in the body if the subject
+  doesn't capture it.
+- **Not backlog-related** (tooling, docs, a one-off fix that maps to no task): omit the id — never
+  invent one.
+- Determine the id from the `build-product` invocation that triggered the commit, or from the task
+  whose files the change implements; if a change clearly maps to no task, treat it as not-backlog-related.
+
 ## Input
 
 Arguments provided via `$ARGUMENTS`:
@@ -143,9 +157,9 @@ optional body.
 
 **Format:**
 ```
-<type>: <Short description (imperative, <70 chars)>
+<type>: <Short description (imperative, <70 chars)> [<task-id> if backlog-related]
 
-<Optional body explaining why>
+<Optional body explaining why / what was done>
 
 ```
 
