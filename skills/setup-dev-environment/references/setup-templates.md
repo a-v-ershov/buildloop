@@ -3,6 +3,10 @@
 Three documents `setup-dev-environment` produces under `docs/project-setup/`. Fill the angle-bracket
 placeholders from the spec and the detected state.
 
+> The project `CLAUDE.md` it scaffolds (section B above) is **not** templated here: its stack notes +
+> commands are stack-specific, and its **project documentation map** block is rendered from the shared
+> spec **`_shared/agent-guide.md`** (marker-delimited, idempotent — touch only that block).
+
 ## 1. `setup-plan.md` — the approvable plan
 
 ```markdown
@@ -24,7 +28,7 @@ placeholders from the spec and the detected state.
 | docker-compose.yml | app + Postgres + MinIO | local-run topology | yes | no |
 | seed script | scripts/seed.ts | seed strategy | yes | no |
 | entrypoint | Makefile `dev` target → `docker compose up` | one-command bring-up | yes | no |
-| project CLAUDE.md | stack notes + commands | AI tooling | yes | partial (back up) |
+| project CLAUDE.md | stack notes + commands **+** project documentation map (`_shared/agent-guide.md`) | AI tooling | yes | partial (back up) |
 
 ## C. AI tooling  (config auto; plugin/MCP installs gated)
 | Item | Action | From | Gated? |

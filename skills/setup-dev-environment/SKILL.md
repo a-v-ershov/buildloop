@@ -34,7 +34,11 @@ settled in the spec; orphan setup that traces to nothing is a defect.
 
 - **Repo files** (in the working tree): `.gitignore`, a project `CLAUDE.md`, `.claude/settings.json`
   and MCP config, the Docker Compose stack, seed scripts, a one-command entrypoint (`Makefile` /
-  `justfile` / script), and the directory skeleton — whatever `dev-architecture` specifies.
+  `justfile` / script), and the directory skeleton — whatever `dev-architecture` specifies. The
+  project `CLAUDE.md` carries two parts: your stack notes + commands, **and** the marker-delimited
+  **project documentation map** — write/refresh that block per **`../_shared/agent-guide.md`** so an
+  agent can navigate `docs/project-spec/`, `docs/build-plan/`, and `docs/project-setup/`. (An earlier
+  `create-project-spec` run may already have seeded the map block; refresh it in place, idempotently.)
 - **`docs/project-setup/setup-plan.md`** — the approvable plan (4 sections, each item traced).
 - **`docs/project-setup/setup-log.md`** — what was done / skipped (already present) / deferred to the
   human (secrets, accounts).
@@ -107,8 +111,10 @@ reversibility · idempotency note · already-present?**:
 
 - **(A) Global installs** — language toolchains, Docker, CLIs the stack needs that aren't on PATH.
   OS-specific; the plan shows the exact command (`brew install …`). *Gated — never auto-run.*
-- **(B) Repo scaffolding** — `.gitignore`, project `CLAUDE.md`, directory skeleton, `docker-compose.yml`,
-  seed scripts, the one-command entrypoint, app config. *Auto-applicable (repo-local).*
+- **(B) Repo scaffolding** — `.gitignore`, project `CLAUDE.md` (stack notes + commands **plus** the
+  marker-delimited project documentation map per **`../_shared/agent-guide.md`** — touch only that
+  block, leave the rest), directory skeleton, `docker-compose.yml`, seed scripts, the one-command
+  entrypoint, app config. *Auto-applicable (repo-local).*
 - **(C) AI tooling** — `.claude/settings.json`, MCP server config, recommended plugins/skills from the
   dev-architecture tooling section. *Config files auto; plugin/MCP installs gated.*
 - **(D) Manual-only** — real secrets/API keys, cloud accounts, licenses. *Cannot be automated — listed

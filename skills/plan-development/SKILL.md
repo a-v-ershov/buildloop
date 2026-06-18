@@ -31,7 +31,9 @@ and no conflict tracking: blockers, and the build loop's one-at-a-time disciplin
 - **Writes:** `docs/build-plan/tasks/<id>-<slug>.md` (one per task), `docs/build-plan/board.md`
   (derived), `docs/build-plan/plan.summary.md` (human). Schema + lifecycle:
   **`../_shared/build-pipeline/backlog-format.md`**. Derivation + amend rules:
-  **`../_shared/build-pipeline/planning-method.md`**.
+  **`../_shared/build-pipeline/planning-method.md`**. Also **refreshes** the project documentation
+  map in the root `CLAUDE.md` (the marker block, per **`../_shared/agent-guide.md`**) so the backlog
+  becomes discoverable — it touches only that block, nothing else in the file.
 
 `docs/build-plan/` is committed project documentation.
 
@@ -68,7 +70,7 @@ write it. Full rules: **`../_shared/build-pipeline/build-config.md`**.
 - [ ] Stage 0: Intake — load product-requirements + user-flows + architecture + dev-architecture (+ setup-log); read mode
 - [ ] Stage 1: Derive tasks — one feature task per committed feature; setup tasks for build prerequisites; type + traces_to + dual description + acceptance
 - [ ] Stage 2: Blockers — set blocked_by from real data/auth/setup/flow order (shallow); the implicit graph
-- [ ] Stage 3: Write — task files + board.md + plan.summary.md
+- [ ] Stage 3: Write — task files + board.md + plan.summary.md + refresh the project CLAUDE.md map (backlog now present)
 - [ ] Stage 4: Gate — interactive: present the breakdown + spine, stop for approval · autopilot: log forks, hand off
 ```
 
@@ -92,6 +94,9 @@ dependencies (the spine); in autopilot, log any assumed dependency as a fork.
 ### Stage 3: Write the backlog
 Create `docs/build-plan/tasks/` and write each task file (schema: `backlog-format.md`). Regenerate
 `docs/build-plan/board.md`. Write `docs/build-plan/plan.summary.md` (template in `planning-method.md`).
+Then **refresh the project documentation map** in the root `CLAUDE.md` so the now-present
+`docs/build-plan/` (board + tasks) appears in it — re-render only the marker block, idempotently, per
+**`../_shared/agent-guide.md`**. (In amend mode, refresh it too, so the map tracks the live backlog.)
 
 ### Stage 4: Gate
 - **interactive:** present the task breakdown, the dependency spine, and any open questions, then STOP:

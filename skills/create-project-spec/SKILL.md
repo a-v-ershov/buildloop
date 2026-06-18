@@ -58,14 +58,14 @@ committed project documentation):
 ## Procedure
 
 ```
-- [ ] Step 0: Detect progress + settle the two settings → write .spec-config.md
+- [ ] Step 0: Detect progress + settle the two settings → write .spec-config.md + seed the project CLAUDE.md map
 - [ ] Step 1: validate-idea                  → gate (interactive) / auto-advance (autopilot)
 - [ ] Step 2: define-product-requirements     → gate / auto-advance
 - [ ] Step 3: create-user-flows               → gate / auto-advance
 - [ ] Step 4: define-design-decisions          → gate / auto-advance
 - [ ] Step 5: design-architecture             → gate / auto-advance
 - [ ] Step 6: design-dev-architecture         → gate / auto-advance
-- [ ] Done: build summary.md (if final_summary) + summarize the documentation set
+- [ ] Done: build summary.md (if final_summary) + refresh the project CLAUDE.md map + summarize the documentation set
 ```
 
 ### Step 0: Detect progress, settle settings
@@ -73,6 +73,13 @@ List `docs/project-spec/`. If artifacts already exist, tell the user and propose
 first missing step; honor an explicit `--from <step>`. Never silently redo a completed step — ask
 before overwriting. Then settle the two settings and write `.spec-config.md` (above). If it
 already exists, reuse it unless the user asks to change mode.
+
+Then **seed the project documentation map** in the project's root `CLAUDE.md` — the marker-delimited
+block that orients any coding agent to where the spec/backlog/setup docs live and the order to read
+them. At this point most artifacts are still *planned*; render them as such. Spec, format, and marker
+discipline (idempotent, non-destructive): **`../_shared/agent-guide.md`**. This is orchestrator
+housekeeping (like writing `.spec-config.md` / `summary.md`), not a phase — keep it to the shared
+block and never touch content outside the markers.
 
 ### Steps 1–5: Run each sub-skill, then advance
 For each step in order:
@@ -101,7 +108,10 @@ When the last available step completes:
    still-open fork (every `Needs human confirm? = yes`) across all phases + consolidated open
    risks. Do not re-derive — concatenate and roll up. Format:
    **`../_shared/spec-pipeline/output-format.md`** (section 4).
-2. **Summarize the documentation set** (paths + one-line status each) and hand off: the project is
+2. **Refresh the project documentation map** in the root `CLAUDE.md` — re-render the marker block so
+   the now-real `docs/project-spec/` artifacts (and `summary.md`) show as present. Spec + marker
+   discipline: **`../_shared/agent-guide.md`** (idempotent — replace the block in place).
+3. **Summarize the documentation set** (paths + one-line status each) and hand off: the project is
    ready for implementation. In autopilot, point the user at `summary.md` first and list the
    must-answer forks they still own.
 

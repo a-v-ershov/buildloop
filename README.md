@@ -41,6 +41,14 @@ edit forward through the spec docs and into the backlog, surgically, asking only
 destructive changes. Everything under `docs/build-plan/` and `docs/project-setup/` is committed
 project documentation.
 
+Throughout, the project's own root **`CLAUDE.md` carries a "project documentation map"** — a small
+marker-delimited block that indexes the spec, the backlog, and the setup contract and tells any
+coding agent the order to read them in before touching code. `create-project-spec` seeds it at the
+start (artifacts shown as *planned*) and finalizes it at the end; `setup-dev-environment` writes it
+alongside its stack notes; `plan-development` refreshes it once the backlog exists. It is idempotent
+and non-destructive — only the marked block is ever touched. Shared spec:
+`skills/_shared/agent-guide.md`.
+
 Every skill **responds in, and thinks in, whatever language you address it in** — write to it in
 Russian and it answers in Russian, in English and it answers in English. Nothing to configure.
 (Commit messages are the one exception: always written in English.)

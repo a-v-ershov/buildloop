@@ -44,6 +44,7 @@ skills/<name>/SKILL.md                   # one directory per skill
 skills/<name>/references/*.md            # bundled templates/rubrics (progressive disclosure)
 skills/_shared/spec-pipeline/*.md        # shared methodology for the project-spec phases (no SKILL.md)
 skills/_shared/build-pipeline/*.md       # shared methodology for the build phase (no SKILL.md)
+skills/_shared/agent-guide.md            # shared: the project CLAUDE.md "project map" block (cross-cutting, no SKILL.md)
 CLAUDE.md
 README.md
 ```
@@ -262,6 +263,26 @@ Conventions for these skills:
 - **Artifacts live under `docs/build-plan/` (backlog, board, plan summary) and `docs/project-setup/`
   (setup log, verification contract) — both committed project documentation.** Skills are verbs; their
   outputs are nouns.
+
+## Project documentation map (the target project's `CLAUDE.md`)
+
+Both pipelines write `docs/`; an agent later working in the project needs to find its way around them.
+So the target project's **root `CLAUDE.md`** carries a small, marker-delimited **project documentation
+map** — a navigational index of `docs/project-spec/`, `docs/build-plan/`, and `docs/project-setup/`
+plus the order to read them in before changing code. It is a **map, not a copy**: it points at the
+artifacts, never restates them. This is a deliberately separate concern from the *built-in* `/init`
+(which writes a `CLAUDE.md` from analysing existing code) — the map is spec/backlog-aware, not
+code-derived.
+
+The behavior is defined once, in the shared spec **`skills/_shared/agent-guide.md`**, and three skills
+render the **same** marked block at natural moments (so nothing is duplicated): `create-project-spec`
+**seeds** it at run start (artifacts shown as *planned*) and **finalizes** it at the end;
+`setup-dev-environment` writes it inside the project `CLAUDE.md` it scaffolds (next to its stack notes
++ commands, which live outside the markers); `plan-development` **refreshes** it once the backlog
+exists. The operation is **idempotent and non-destructive** — writers touch only the content between
+`<!-- builder-skills:project-map:start -->` and `<!-- builder-skills:project-map:end -->`, never the
+user's own `CLAUDE.md` content. There is no separate skill for this — it is shared methodology, like
+the research/review/output-format docs.
 
 ## Authoring conventions
 
