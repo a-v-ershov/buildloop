@@ -2,8 +2,9 @@
 
 A small, navigational section that lives in the **target project's root `CLAUDE.md`** (the product
 repo being specced/built — not this plugin). It orients any coding agent to where the project's own
-documentation lives — the spec, the backlog, the setup contract — and the order to read it in before
-touching code. It is a **map, not a copy**: it points at the artifacts, it never restates them.
+documentation lives — the spec, the backlog, the setup contract, and the release audits — and the
+order to read it in before touching code. It is a **map, not a copy**: it points at the artifacts, it
+never restates them.
 
 This is shared methodology: several skills write or refresh the **same** section, each at a natural
 moment, all from this one spec — so the behavior is defined once and never duplicated.
@@ -15,6 +16,9 @@ moment, all from this one spec — so the behavior is defined once and never dup
 - **`setup-dev-environment`** — writes/refreshes it inside the project `CLAUDE.md` it scaffolds in
   the build phase, next to its stack notes + commands (which live **outside** the markers).
 - **`plan-development`** — refreshes it after writing the backlog, so `docs/build-plan/` shows up.
+- **`release-product`** — refreshes it after the release audits run (it always runs in the release
+  phase, so this is the release phase's primary refresh), so `docs/release/` shows up.
+- **`cut-release`** — refreshes it when finalizing a standalone cut, keeping `docs/release/` current.
 
 Any of these can also run standalone. The operation is **idempotent** — re-running re-renders the
 block in place and never duplicates it.
@@ -39,8 +43,8 @@ The section is delimited by HTML-comment markers and is the ONLY thing these wri
 
 ## What to map (scan, mark present vs planned)
 
-Scan `docs/project-spec/`, `docs/build-plan/`, and `docs/project-setup/`. Emit one row per known
-artifact, pointing at it. If a file is not there yet (e.g. an early seed before the spec exists),
+Scan `docs/project-spec/`, `docs/build-plan/`, `docs/project-setup/`, and `docs/release/`. Emit one
+row per known artifact, pointing at it. If a file is not there yet (e.g. an early seed before the spec exists),
 still list it but mark it **planned** — so the map describes the intended shape from day one. Never
 invent artifacts the pipeline does not produce.
 
@@ -57,6 +61,8 @@ Known artifacts (the `.research.md` files are the depth; each has a short `.summ
 - `docs/build-plan/board.md` (+ `tasks/*.md`) — the backlog (what to build next).
 - `docs/project-setup/verification.md` — run / drive / prove commands.
 - `docs/project-setup/setup-log.md` — what the env provides + manual TODOs.
+- `docs/release/release-summary.md` — release readiness + what shipped (the verdict).
+- `docs/release/*-audit.md` — per-audit findings (security, performance, product, code-health, accessibility) — the audit trail.
 
 ## Rendered template (emit this between the markers)
 
@@ -90,6 +96,8 @@ absorb) any place where the code and the docs disagree; propagate real changes w
 | ✓ | `docs/project-spec/dev-architecture.research.md` | Local run, testing, AI tooling |
 | ◦ | `docs/build-plan/board.md` (+ `tasks/*.md`) | Backlog — what to build next |
 | ◦ | `docs/project-setup/verification.md` | Run / drive / prove commands |
+| ◦ | `docs/release/release-summary.md` | Release readiness + what shipped |
+| ◦ | `docs/release/*-audit.md` | Per-audit findings (the audit trail) |
 <!-- builder-skills:project-map:end -->
 ```
 

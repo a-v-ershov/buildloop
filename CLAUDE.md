@@ -296,6 +296,69 @@ Conventions for these skills:
   (setup log, verification contract) — both committed project documentation.** Skills are verbs; their
   outputs are nouns.
 
+## Development-process skill pipeline (release phase)
+
+After the product is built and each feature individually verified, a third pipeline takes it to a **cut
+release**. Where the build phase verifies one task's acceptance criteria, the release phase proves the
+**emergent, cross-cutting properties no single task could** — security, performance, accessibility,
+end-to-end product behavior, code health — then cuts the release. It is the **system-level counterpart of
+`verify-feature`**: each audit is a fresh, independent agent that starts from a **contract the spec phase
+already wrote** (the quality-attribute scenarios + STRIDE-lite threat model in `architecture`, the
+accessibility decisions in `design-decisions`, the user flows in `user-flows`) and proves, with evidence,
+whether the running system upholds it.
+
+Unlike the build phase, **the audits are read-only**, so — uniquely in this collection — they **fan out
+in parallel** (they mutate nothing, they collide on nothing; static audits run free, dynamic ones that
+drive the running stack serialize on the env lease). Audits **never fix code**: a finding becomes a
+rework task in the backlog, fixed by a separate `build-product` run and then re-audited (the
+writer/reviewer split again). Its shared machinery lives in `skills/_shared/release-pipeline/`.
+
+| # | Skill | Role | Proves against / does |
+|---|-------|------|-----------------------|
+| — | `release-product` | Orchestrator (release captain) | runs the audits → files rework → drives build-product → re-audits → `cut-release` |
+| 1 | `audit-security` | Security engineer / CSO | the STRIDE-lite threat model → `docs/release/security-audit.md` |
+| 2 | `audit-performance` | Performance engineer | the quality-attribute scenarios → `docs/release/performance-audit.md` |
+| 3 | `audit-product` | QA lead | the user flows end-to-end (cross-feature) → `docs/release/qa-report.md` |
+| 4 | `audit-code-health` | Staff engineer | code-rot signals + lint/type debt + mutation → `docs/release/code-health-audit.md` |
+| 5 | `audit-accessibility` | Accessibility specialist | the accessibility decisions (WCAG) → `docs/release/accessibility-audit.md` |
+| — | `cut-release` | Release engineer | clean tree + no open 🔴 → docs + version + changelog + release notes + tag + commit + PR (always confirmed; stops before prod deploy) |
+
+Conventions for these skills:
+
+- **Audits are system-level verification — read-only, evidence-driven, and parallel.** Each runs the
+  shared audit machine (read contract → probe → prove → rank → file): a fresh independent agent, starting
+  from the spec contract not the code, that proves a real observable outcome (a measured p95, a secret at
+  `file:line`, a reproduced exploit, a failing WCAG rule) — never "looks fine". They mutate nothing, so
+  `release-product` fans them out together; dynamic audits acquire the env lease so they don't collide on
+  the one running stack. Method: `skills/_shared/release-pipeline/audit-method.md`.
+- **Findings are filed, not fixed (the writer/reviewer split, again).** An audit never edits product code.
+  A 🔴 blocker / 🟡 major becomes a `type: rework` task in the backlog (via `plan-development`'s amend
+  mode); ⚪ minors are logged only. `build-product` fixes the tasks; the audit **re-runs to confirm** —
+  a 🔴 clears only by re-proving it closed, never by assumption. The loop is bounded by
+  `max_audit_iterations` (default 3); a 🔴 at the cap escalates to `needs_human`. Severity + what blocks a
+  release: `skills/_shared/release-pipeline/severity-rubric.md` — and the rubric guards against the
+  documented "reviewer always finds problems" failure mode (flag against the contract, no finding without
+  proof, speculative hardening is ⚪ at most).
+- **`cut-release` is the only outward-facing step** — and combines the documentation update, the version
+  bump (if needed), the changelog/release notes, and the tag/commit/PR into one gated skill. It always
+  confirms before acting (the `careful` pattern) and **stops before any production deploy** — deploy and
+  post-deploy canary monitoring are out of scope by deliberate decision (project-specific and dangerous;
+  left to a separate manual step).
+- **Two run modes, like the other phases.** `docs/release/.release-config.md` holds `mode`
+  (`interactive` | `autopilot`), `max_audit_iterations`, and which `audits` are enabled (each self-skips
+  if its contract is absent/N/A). Two things always stop regardless of mode: a 🔴 surviving the cap
+  (`needs_human`), and `cut-release` itself. Config + modes:
+  `skills/_shared/release-pipeline/release-config.md`.
+- **`release-product` conducts; it does not duplicate.** It invokes the focused sub-skills and **reuses
+  the build-pipeline machinery** (the backlog + `plan-development` amend, `build-product`, `env-access`,
+  the quality gate, `commit`) rather than re-implementing it — the release phase sits on top of the build
+  phase, it does not fork it.
+- **Artifacts live under `docs/release/`** — the per-audit findings docs (the audit trail of *why the
+  release was, or wasn't, cut*) and the combined `release-summary.md` (the decisions-first human report).
+  Committed project documentation; skills are verbs, their outputs are nouns. `docs/release/` is indexed
+  in the project documentation map (`agent-guide.md`), refreshed by `release-product` (and by
+  `cut-release` on a standalone cut).
+
 ## Project documentation map (the target project's `CLAUDE.md`)
 
 Both pipelines write `docs/`; an agent later working in the project needs to find its way around them.

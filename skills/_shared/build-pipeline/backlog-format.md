@@ -31,7 +31,7 @@ reused.
 ```yaml
 ---
 id: T012
-type: feature                 # setup | feature | verify
+type: feature                 # setup | feature | verify | rework
 title: "Search across documents"
 summary: "Document search from the app header"        # SHORT, one line, for humans (the board)
 status: todo                  # todo | in_progress | done | cancelled | needs_human
@@ -68,7 +68,10 @@ was done, what was found, evidence links. The verifier's findings accumulate as 
 
 - **`type`** — `setup` (an environment/scaffolding task, run by `setup-dev-environment`), `feature`
   (a product feature, run by `implement-feature` then `verify-feature`), `verify` (an optional
-  cross-cutting check, e.g. an end-to-end pass over several features).
+  cross-cutting check, e.g. an end-to-end pass over several features), `rework` (a fix to
+  already-built code — filed by a release-phase `audit-*` finding, or by a `propagate-changes`
+  reopen; `traces_to` points at the audit finding / changed spec section; **dispatched exactly like
+  `feature`**: `implement-feature` then `verify-feature`).
 - **`summary`** — one line, plain language, no jargon; this is what the board shows a human.
 - **`status`** — see the lifecycle below.
 - **`created`** — ISO-8601 UTC, written once. Get the time at runtime (`date -u +%Y-%m-%dT%H:%M:%SZ`).

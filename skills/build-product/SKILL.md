@@ -73,6 +73,10 @@ Repeat until no `ready` task remains:
      PASS, the task is done-eligible. When `verify_attempts` reaches `max_verify_iterations` with a
      critical criterion still failing, set `status: needs_human`, surface it, and move on — do not loop
      further. Lifecycle rules: **`../_shared/build-pipeline/build-config.md`**.
+   - **`rework`** (a fix to already-built code, filed by a release-phase `audit-*` finding or a
+     `propagate-changes` reopen) → **same as `feature`**: spawn `implement-feature` fresh, then the
+     bounded `verify-feature` loop. (Re-confirmation that the audit's finding is closed is the
+     release phase's `audit-*` re-run, not this loop.)
    - **`verify`** (cross-cutting) → spawn `verify-feature` on it directly.
 4. **On PASS → finalize the task:** first confirm the **full quality gate is green** (`make check` —
    lint/type + the whole accumulated test suite, **`../_shared/build-pipeline/quality-gate.md`**); a red
