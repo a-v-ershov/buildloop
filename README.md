@@ -19,6 +19,10 @@ all the way to a buildable spec, one reviewed step at a time:
 Plus `commit` (intelligent, split-aware git commits). Each step stops at a hard gate for your
 approval before the next runs, and each sub-skill is also runnable on its own.
 
+Everything under `docs/project-spec/` is **committed project documentation** (research docs,
+summaries, ADRs, and `.spec-config.md`); the only transient file is `*.review.md`, which is
+deleted after merge and gitignored via a local `docs/project-spec/.gitignore`.
+
 Every skill **responds in, and thinks in, whatever language you address it in** — write to it in
 Russian and it answers in Russian, in English and it answers in English. Nothing to configure.
 (Commit messages are the one exception: always written in English.)

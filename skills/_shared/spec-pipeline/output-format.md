@@ -79,6 +79,10 @@ into `<artifact>.research.md` (and logs them in the Forks / Decisions log), then
 file**. It is never a deliverable and is not referenced by later phases. Delete it in both modes,
 after the merge — its content is fully absorbed into the research doc.
 
+As a belt-and-suspenders guard against an aborted run leaving a stray review behind, the pipeline
+also keeps a local `docs/project-spec/.gitignore` containing `*.review.md`, created alongside the
+directory (see `pipeline-config.md`). Everything else under `docs/project-spec/` is committed.
+
 ## 4. Final combined summary — `docs/project-spec/summary.md` (orchestrator only)
 
 Built by `create-project-spec` at the end of a run when `final_summary: true`. One document a

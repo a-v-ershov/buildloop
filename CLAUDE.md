@@ -127,10 +127,19 @@ reviewer's inconsistencies + gaps) is applied at the merge stage and then **dele
 findings live on in the research doc and its Forks / Decisions log. The orchestrator additionally
 builds a combined human-facing `docs/project-spec/summary.md` at the end of a run.
 
+**Commit policy: everything kept under `docs/project-spec/` is committed project documentation** —
+the `<noun>.research.md` (its Forks / Decisions log is the audit trail of *why*), the
+`<noun>.summary.md`, the combined `summary.md`, the `adr/*`, and `.spec-config.md`. The only
+exception is the transient `<noun>.review.md`, which is **deleted after merge** and additionally
+gitignored (belt-and-suspenders against an aborted run) via a local `docs/project-spec/.gitignore`
+containing `*.review.md`. The artifacts are never hidden in a dot-dir — they are documentation,
+and `docs/` is their visible, conventional home.
+
 Conventions for these skills:
 
 - **Artifacts live in the repo under `docs/project-spec/`.** Phase N reads phase N−1's research
-  doc from there. Each skill creates the directory if it does not exist.
+  doc from there. Each skill creates the directory if it does not exist — and, when creating it,
+  drops a `docs/project-spec/.gitignore` containing `*.review.md` if absent.
 - **Every phase researches and reviews itself.** It verifies its world-claims against real
   sources (adaptive depth: light web search by default, `/deep-research` only when warranted or
   requested), cites them inline + in a `## Sources` section, then spawns a separate reviewer

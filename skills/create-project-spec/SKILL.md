@@ -44,7 +44,9 @@ every sub-skill inherits them. Use one `AskUserQuestion` (defaults pre-selected)
 2. **`final_summary`** — `true` (default): at the end, build one combined human-readable
    `docs/project-spec/summary.md`. `false`: skip it.
 
-Write the file (create `docs/project-spec/` if needed):
+Write the file (create `docs/project-spec/` if needed; when creating the directory, also drop a
+`docs/project-spec/.gitignore` containing `*.review.md` if absent — everything else there is
+committed project documentation):
 
 ```
 # Spec pipeline config

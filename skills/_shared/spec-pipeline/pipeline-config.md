@@ -35,6 +35,11 @@ standalone). Format:
    standalone phases inherit the choice. If the user just wants the single phase, interactive is
    the safe default.
 
+Whenever you create the `docs/project-spec/` directory (here or when first writing an artifact),
+also create a local `docs/project-spec/.gitignore` containing `*.review.md` if it is absent — a
+safety net so an aborted run never commits a stray transient review file. Everything else under
+`docs/project-spec/` is committed project documentation.
+
 ## Autopilot rules (non-negotiable)
 
 - **Decide, but never hide.** Every fork the AI resolves goes into the Forks / Decisions log with
