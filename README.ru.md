@@ -117,7 +117,7 @@ MCP-сервера.
 В любом проекте, внутри Claude Code:
 
 ```
-/plugin marketplace add https://github.com/a-v-ershov/Buildloop.git
+/plugin marketplace add https://github.com/a-v-ershov/buildloop.git
 /plugin install buildloop@buildloop
 ```
 

@@ -111,7 +111,7 @@ at every stage.
 In any project, inside Claude Code:
 
 ```
-/plugin marketplace add https://github.com/a-v-ershov/Buildloop.git
+/plugin marketplace add https://github.com/a-v-ershov/buildloop.git
 /plugin install buildloop@buildloop
 ```
 
