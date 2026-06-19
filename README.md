@@ -2,6 +2,8 @@
 
 **English** · [Русский](README.ru.md)
 
+Buildloop is a set of Claude Code skills and agents for building products.
+
 The name is the method: every change rides a **build → verify → ship loop** where a separate agent proves the work before it advances. **[Jump to install ↓](#install)**
 
 **Take a raw idea to a shipped release with Buildloop — one reviewed step at a time, so the AI
